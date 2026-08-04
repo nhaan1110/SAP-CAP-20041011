@@ -6,3 +6,9 @@ entity Books {
   author: String;
   stock: Integer;
 }
+
+entity Orders {
+  key ID    : Integer;
+  quantity  : Integer;
+  book      : Association to Books;
+}

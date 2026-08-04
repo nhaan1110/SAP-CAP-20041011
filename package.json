@@ -4,6 +4,8 @@
   "description": "Welcome to your new CAP project.",
   "main": "index.js",
   "dependencies": {
+    "@cap-js/sqlite": "^3.0.2",
+    "@sap/cds": "^10.0.5",
     "accepts": "^2.0.0",
     "body-parser": "^2.3.0",
     "bytes": "^3.1.2",
@@ -63,6 +65,7 @@
     "side-channel-list": "^1.0.1",
     "side-channel-map": "^1.0.1",
     "side-channel-weakmap": "^1.0.2",
+    "sqlite3": "^6.0.1",
     "statuses": "^2.0.2",
     "toidentifier": "^1.0.1",
     "type-is": "^2.1.0",
@@ -71,7 +74,16 @@
     "wrappy": "^1.0.2",
     "yaml": "^2.9.0"
   },
-  "devDependencies": {},
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": "db.sqlite"
+        }
+      }
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
