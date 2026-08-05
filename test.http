@@ -1,0 +1,26 @@
+### 1. Test Filter 
+GET http://localhost:4004/odata/v4/catalog/Books?$filter=stock gt 5
+
+### 2. Test Sort 
+GET http://localhost:4004/odata/v4/catalog/Books?$orderby=title asc
+
+### 3. Test POST 
+POST http://localhost:4004/odata/v4/catalog/Orders
+Content-Type: application/json
+
+{
+  "ID": 4,
+  "quantity": 10,
+  "book_ID": 1
+}
+
+### 4. Test PATCH 
+PATCH http://localhost:4004/odata/v4/catalog/Orders(4)
+Content-Type: application/json
+
+{
+  "quantity": 25
+}
+
+### 5. Test DELETE 
+DELETE http://localhost:4004/odata/v4/catalog/Orders(4)
