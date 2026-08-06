@@ -34,3 +34,56 @@ Content-Type: application/json
   "quantity": 9,
   "book_ID": 1
 }
+
+### 7. Test Managed Entity (Books)
+
+# Kiểm tra audit fields tự động sinh (createdAt, createdBy, ...)
+POST http://localhost:4004/odata/v4/catalog/Books
+Content-Type: application/json
+
+{
+  "ID": 10,
+  "title": "CAP Tutorial",
+  "author": "Nhã",
+  "stock": 20
+}
+
+### 8. Test Managed Entity GET
+
+# Sau khi tạo Book, kiểm tra audit fields có xuất hiện
+GET http://localhost:4004/odata/v4/catalog/Books(10)
+
+### 9. Test Unmanaged Entity (Orders)
+
+# Kiểm tra audit fields tự xử lý trong service.js (createdAt, createdBy)
+POST http://localhost:4004/odata/v4/catalog/Orders
+Content-Type: application/json
+
+{
+  "ID": 11,
+  "quantity": 2,
+  "book_ID": 10
+}
+
+### 10. Test Composition (Books–Chapters)
+
+# Tạo Book kèm Chapters (Composition → vòng đời phụ thuộc)
+POST http://localhost:4004/odata/v4/catalog/Books
+Content-Type: application/json
+
+{
+  "ID": 12,
+  "title": "CAP Advanced",
+  "author": "Trainer",
+  "stock": 5,
+  "chapters": [
+    { "ID": 101, "title": "Intro", "content": "Managed vs Unmanaged" },
+    { "ID": 102, "title": "Deep Dive", "content": "Association vs Composition" }
+  ]
+}
+
+### 11. Test Composition Delete
+
+# Xóa Book → Chapters cũng bị xóa theo (do Composition)
+DELETE http://localhost:4004/odata/v4/catalog/Books(12)
+
