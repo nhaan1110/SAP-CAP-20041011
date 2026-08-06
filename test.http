@@ -24,3 +24,13 @@ Content-Type: application/json
 
 ### 5. Test DELETE 
 DELETE http://localhost:4004/odata/v4/catalog/Orders(4)
+
+### 6. Test Stock Validation
+POST http://localhost:4004/odata/v4/catalog/Orders
+Content-Type: application/json
+
+{
+  "ID": 5,
+  "quantity": 9,
+  "book_ID": 1
+}
