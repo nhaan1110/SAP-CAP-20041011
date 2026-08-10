@@ -85,5 +85,5 @@ Content-Type: application/json
 ### 11. Test Composition Delete
 
 # Xóa Book → Chapters cũng bị xóa theo (do Composition)
-DELETE http://localhost:4004/odata/v4/catalog/Books(12)
+DELETE http://localhost:4004/odata/v4/catalog/Books(10)
 

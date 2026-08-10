@@ -1,0 +1,42 @@
+<mvc:View
+    controllerName="zbooks.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+    <Page id="page" title="Quản Lý Danh Sách Sách">
+        <content>
+            <!-- Bảng dữ liệu tự động binding tới Entity /Books -->
+            <Table id="booksTable" items="{/Books}">
+                <headerToolbar>
+                    <OverflowToolbar>
+                        <Title text="Danh Sách Sách" level="H2"/>
+                    </OverflowToolbar>
+                </headerToolbar>
+                <columns>
+                    <Column>
+                        <Text text="Mã sách (ID)" />
+                    </Column>
+                    <Column>
+                        <Text text="Tên sách" />
+                    </Column>
+                    <Column>
+                        <Text text="Tác giả" />
+                    </Column>
+                    <Column>
+                        <Text text="Số lượng tồn" />
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{ID}" />
+                            <Text text="{title}" />
+                            <Text text="{author}" />
+                            <Text text="{stock}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+    </Page>
+</mvc:View>
