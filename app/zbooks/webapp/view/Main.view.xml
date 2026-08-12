@@ -1,12 +1,10 @@
 <mvc:View
-    xmlns:c="sap.ui.core"
     controllerName="zbooks.controller.Main"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns:u="sap.ui.unified"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m"
-    xmlns:t="sap.ui.table"
     xmlns:f="sap.f"
-    xmlns:layout="sap.ui.layout"
+    xmlns:fb="sap.ui.comp.filterbar"
     height="100%">
     
     <f:DynamicPage id="dynamicPageId" preserveHeaderStateOnScroll="true" headerExpanded="true" showFooter="true" fitContent="true">
@@ -15,29 +13,8 @@
         <f:title>
             <f:DynamicPageTitle id="_IDGenDynamicPageTitle1">
                 <f:heading>
-                    <Title id="_IDGenTitle" text="Header Title"/>
+                    <Title id="_IDGenTitle" text="Book Inventory Management"/>
                 </f:heading>
-                <f:expandedContent>
-                    <Label id="_IDGenLabel" text="This is a subheading"/>
-                </f:expandedContent>
-                <f:snappedContent>
-                    <Label id="_IDGenLabel1" text="This is a subheading"/>
-                </f:snappedContent>
-                <f:snappedTitleOnMobile>
-                    <Title id="_IDGenTitle1" text="This is a subheading"/>
-                </f:snappedTitleOnMobile>
-                <f:content>
-                    <OverflowToolbar id="_IDGenOverflowToolbar">
-                        <GenericTag id="_IDGenGenericTag" text="SR"
-                            status="Error"
-                            design="StatusIconHidden">
-                            <ObjectNumber id="_IDGenObjectNumber" number="2"
-                                unit="M"
-                                emphasized="false"
-                                state="Error"/>
-                        </GenericTag>
-                    </OverflowToolbar>
-                </f:content>
                 <f:actions>
                     <ToolbarSpacer id="_IDGenToolbarSpacer"/>
                     <Button id="_IDGenButton" text="Edit" type="Emphasized"/>
@@ -47,32 +24,38 @@
                 </f:actions>
             </f:DynamicPageTitle>
         </f:title>
-
+        
         <!-- DynamicPage Header -->
         <f:header>
-            <f:DynamicPageHeader id="_IDGenDynamicPageHeader" pinnable="true">
-                <FlexBox id="_IDGenFlexBox" alignItems="Start" justifyContent="SpaceBetween">
-                    <items>
-                        <Panel id="_IDGenPanel" backgroundDesign="Transparent" class="sapUiNoContentPadding">
-                            <content>
-                                <layout:HorizontalLayout id="_IDGenHorizontalLayout" allowWrapping="true">
-                                    <layout:VerticalLayout id="_IDGenVerticalLayout" class="sapUiMediumMarginEnd">
-                                        <ObjectAttribute id="_IDGenObjectAttribute" title="Location" text="Warehouse A"/>
-                                        <ObjectAttribute id="_IDGenObjectAttribute1" title="Halway" text="23L"/>
-                                        <ObjectAttribute id="_IDGenObjectAttribute2" title="Rack" text="34"/>
-                                    </layout:VerticalLayout>
-                                    <layout:VerticalLayout id="_IDGenVerticalLayout1">
-                                        <ObjectAttribute id="_IDGenObjectAttribute3" title="Availability"/>
-                                        <ObjectStatus id="_IDGenObjectStatus" text="In Stock" state="Success" />
-                                    </layout:VerticalLayout>
-                                </layout:HorizontalLayout>
-                            </content>
-                        </Panel>
-                    </items>
-                </FlexBox>
+            <f:DynamicPageHeader id="dynamicPageHeader">
+                <f:content>
+                    <fb:FilterBar id="filterbar" useToolbar="false" search=".onSearch">
+                        <fb:filterGroupItems>
+                            
+                            <!-- Ô LỌC 1: Tên sách -->
+                            <fb:FilterGroupItem name="title" label="Book Title" groupName="Group1" visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox name="title" items="{/Books}">
+                                        <core:Item key="{ID}" text="{title}"/>
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                            <!-- Ô LỌC 2: Tác giả -->
+                            <fb:FilterGroupItem name="author" label="Author" groupName="Group1" visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox name="author" items="{/Books}">
+                                        <core:Item key="{ID}" text="{author}"/>
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                        </fb:filterGroupItems>
+                    </fb:FilterBar>
+                </f:content>
             </f:DynamicPageHeader>
         </f:header>
-
+        
         <!-- DynamicPage Content -->
         <f:content>
             <Table id="booksTable" items="{/Books}" mode="SingleSelect">

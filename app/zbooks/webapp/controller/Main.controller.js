@@ -1,36 +1,77 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/ui/model/json/JSONModel",
-    "sap/m/MessageToast"
-], function (Controller, JSONModel, MessageToast) {
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator"
+], function (Controller, Filter, FilterOperator) {
     "use strict";
 
     return Controller.extend("zbooks.controller.Main", {
         onInit: function () {
-            var oJSONModel = this.initSampleDataModel();
-            this.getView().setModel(oJSONModel);
+           
         },
 
-        // Tạo dữ liệu Books thay vì dùng products.json
-        initSampleDataModel : function() {
-            var oModel = new JSONModel();
-            var oData = {
-                Books: [
-                    { ID: "B001", title: "Book A", author: "Author A", stock: 10 },
-                    { ID: "B002", title: "Book B", author: "Author B", stock: 5 },
-                    { ID: "B003", title: "Book C", author: "Author C", stock: 7 }
-                ],
-                headerExpanded: true
-            };
-            oModel.setData(oData);
-            return oModel;
+        //  (Nút Go) 
+        onSearch: function () {
+            var oFilterBar = this.getView().byId("filterbar");
+            var oTable = this.getView().byId("booksTable");
+
+            var aTableFilters = oFilterBar.getFilterGroupItems().reduce(function (aResult, oFilterGroupItem) {
+                var oControl = oFilterGroupItem.getControl(),
+                    aSelectedItems = oControl.getSelectedItems(),
+                    aFilters = aSelectedItems.map(function (oItem) {
+                        return new Filter({
+                            path: oFilterGroupItem.getName(),
+                            operator: FilterOperator.Contains,
+                            value1: oItem.getText()
+                        });
+                    });
+
+                if (aSelectedItems.length > 0) {
+                    aResult.push(new Filter({
+                        filters: aFilters,
+                        and: false
+                    }));
+                }
+
+                return aResult;
+            }, []);
+
+            oTable.getBinding("items").filter(aTableFilters);
         },
 
-        // Ví dụ hàm xử lý khi chọn chi tiết
-        handleDetailsPress : function(oEvent) {
-            var oContext = oEvent.getSource().getBindingContext();
-            var sBookId = oContext.getProperty("ID");
-            MessageToast.show("Details for book with ID " + sBookId);
+        onValueHelpRequest: function (oEvent) {
+            this._oInputSource = oEvent.getSource();
+
+            if (!this._oValueHelpDialog) {
+                this.loadFragment({
+                    name: "zbooks.view.AuthorValueHelp"
+                }).then(function (oDialog) {
+                    this._oValueHelpDialog = oDialog;
+                    this.getView().addDependent(this._oValueHelpDialog);
+                    this._oValueHelpDialog.open();
+                }.bind(this));
+            } else {
+                this._oValueHelpDialog.open();
+            }
+        },
+
+        onValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value");
+            var oFilter = new Filter("author", FilterOperator.Contains, sValue);
+            oEvent.getSource().getBinding("items").filter([oFilter]);
+        },
+
+        onValueHelpConfirm: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("selectedItem");
+            if (oSelectedItem && this._oInputSource) {
+                this._oInputSource.setValue(oSelectedItem.getTitle());
+            }
+        },
+
+        onValueHelpClose: function () {
+            if (this._oValueHelpDialog) {
+                this._oValueHelpDialog.close();
+            }
         }
     });
 });
