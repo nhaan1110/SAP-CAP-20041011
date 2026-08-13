@@ -1,0 +1,25 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+    
+    <Dialog id="addBookDialog" title="Thêm sách mới" contentWidth="400px">
+        <f:SimpleForm editable="true" layout="ColumnLayout">
+            <Label text="Tên sách" required="true"/>
+            <Input value="{newBook>/title}" placeholder="Nhập tên sách..."/>
+            
+            <Label text="Tác giả"/>
+            <Input value="{newBook>/author}" placeholder="Nhập tên tác giả..."/>
+            
+            <Label text="Số lượng (Stock)"/>
+            <Input value="{newBook>/stock}" type="Number"/>
+        </f:SimpleForm>
+        
+        <beginButton>
+            <Button text="Lưu" type="Emphasized" press="onSaveBook"/>
+        </beginButton>
+        <endButton>
+            <Button text="Hủy" press="onCloseAddDialog"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

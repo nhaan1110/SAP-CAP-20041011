@@ -16,12 +16,12 @@
                     <Title id="_IDGenTitle" text="Book Inventory Management"/>
                 </f:heading>
                 <f:actions>
-                    <ToolbarSpacer id="_IDGenToolbarSpacer"/>
-                    <Button id="_IDGenButton" text="Edit" type="Emphasized"/>
-                    <Button id="_IDGenButton1" text="Delete" type="Transparent"/>
-                    <Button id="_IDGenButton2" text="Copy" type="Transparent"/>
-                    <Button id="_IDGenButton3" icon="sap-icon://action" type="Transparent"/>
-                </f:actions>
+    <ToolbarSpacer id="_IDGenToolbarSpacer"/>
+<Button id="btnAdd" text="Add" type="Emphasized" icon="sap-icon://add" press="onAdd"/>
+<Button id="btnEdit" text="Edit" type="Attention" icon="sap-icon://edit" press="onEdit"/>
+<Button id="btnCopy" text="Copy" type="Accept" icon="sap-icon://copy" press="onCopy"/>
+<Button id="btnDelete" text="Delete" type="Reject" icon="sap-icon://delete" press="onDelete"/>
+</f:actions>
             </f:DynamicPageTitle>
         </f:title>
         
@@ -80,7 +80,20 @@
                                 showValueHelp="true"
                                 valueHelpRequest="onValueHelpRequest"
                                 placeholder="Select Author" />
-                            <Text id="_IDGenText6" text="{stock}" />
+                            <ObjectStatus 
+    id="_IDGenStockStatus" 
+    text="{
+        path: 'stock',
+        formatter: '.formatStockText'
+    }" 
+    state="{
+        path: 'stock',
+        formatter: '.formatStockState'
+    }"
+    icon="{
+        path: 'stock',
+        formatter: '.formatStockIcon'
+    }" />
                         </cells>
                     </ColumnListItem>
                 </items>
@@ -88,12 +101,12 @@
         </f:content>
 
         <!-- DynamicPage Footer -->
-        <f:footer>
+        <!-- <f:footer>
             <OverflowToolbar id="_IDGenOverflowToolbar2">
                 <ToolbarSpacer id="_IDGenToolbarSpacer1"/>
                 <Button id="_IDGenButton4" type="Accept" text="Accept"/>
                 <Button id="_IDGenButton5" type="Reject" text="Reject"/>
             </OverflowToolbar>
-        </f:footer>
+        </f:footer> -->
     </f:DynamicPage>
 </mvc:View>
