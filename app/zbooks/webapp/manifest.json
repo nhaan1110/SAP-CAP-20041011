@@ -46,13 +46,11 @@
     "flexEnabled": true,
     "dependencies": {
       "minUI5Version": "1.151.0",
-     "libs": {
-          "sap.m": {},
-          "sap.ui.core": {},
-          "sap.ui.comp": {}
-        }
-      
-
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ui.comp": {}
+      }
     },
     "contentDensities": {
       "compact": true,
@@ -101,12 +99,23 @@
           "target": [
             "TargetMain"
           ]
+        },
+        {
+          "name": "RouteDetail",
+          "pattern": "Books/{bookId}",
+          "target": [
+            "TargetDetail"
+          ]
         }
       ],
       "targets": {
         "TargetMain": {
           "id": "Main",
           "name": "Main"
+        },
+        "TargetDetail": {
+          "id": "Detail",
+          "name": "Detail"
         }
       }
     },

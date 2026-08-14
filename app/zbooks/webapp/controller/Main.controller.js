@@ -72,7 +72,6 @@ sap.ui.define([
             }
         },
 
-        // --- LOGIC THÊM SÁCH (ADD BOOK) ---
         onAdd: function () {
             var oView = this.getView();
 
@@ -84,7 +83,6 @@ sap.ui.define([
             });
             oView.setModel(oNewBookModel, "newBook");
 
-            // Load Fragment và gán addDependent
             if (!this._pAddDialog) {
                 this._pAddDialog = this.loadFragment({
                     name: "zbooks.view.AddBookDialog"
@@ -103,7 +101,6 @@ sap.ui.define([
     var oView = this.getView();
     var oNewBookData = oView.getModel("newBook").getData();
 
-    // Validate dữ liệu
     if (!oNewBookData.title || !oNewBookData.title.trim()) {
         MessageToast.show("Vui lòng nhập tên sách!");
         return;
@@ -112,7 +109,6 @@ sap.ui.define([
     var oTable = this.byId("booksTable");
     var oBinding = oTable ? oTable.getBinding("items") : null;
 
-    // --- ĐOẠN SỬA LẠI: TÍNH ID TỰ TĂNG NỐI TIẾP ---
     var aItems = oTable ? oTable.getItems() : [];
     var iMaxId = 0;
 
@@ -126,17 +122,16 @@ sap.ui.define([
         }
     });
 
-    var iNewId = iMaxId + 1; // ID mới sẽ bằng ID lớn nhất hiện tại + 1
-    // ----------------------------------------------
+    var iNewId = iMaxId + 1; 
 
     var oPayload = {
-        ID: iNewId, // Đã thay thế dòng Date.now() cũ
+        ID: iNewId, 
         title: oNewBookData.title.trim(),
         author: oNewBookData.author ? oNewBookData.author.trim() : "",
         stock: parseInt(oNewBookData.stock, 10) || 0
     };
 
-    // Xử lý chuẩn cho OData V4 (dựa theo manifest.json)
+    // Xử lý OData V4 
     if (oBinding && oBinding.create) {
         var oContext = oBinding.create(oPayload);
 
@@ -160,7 +155,6 @@ sap.ui.define([
             }
         },
 
-        // --- CÁC THAO TÁC KHÁC ---
         onEdit: function () {
             var oTable = this.byId("booksTable");
             var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
@@ -174,29 +168,6 @@ sap.ui.define([
             var oBook = oContext ? oContext.getObject() : null;
             if (oBook) {
                 MessageToast.show("Đang chọn sửa sách: " + (oBook.title || oBook.ID));
-            }
-        },
-
-        onCopy: function () {
-            var oTable = this.byId("booksTable");
-            var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
-
-            if (!oSelectedItem) {
-                MessageToast.show("Vui lòng chọn 1 cuốn sách để sao chép!");
-                return;
-            }
-
-            var oBinding = oTable.getBinding("items");
-            var oContext = oSelectedItem.getBindingContext();
-            var oSelectedBook = oContext ? oContext.getObject() : null;
-
-            if (oSelectedBook && oBinding && oBinding.create) {
-                var oNewBook = Object.assign({}, oSelectedBook);
-                oNewBook.ID = parseInt(String(Date.now()).slice(-3), 10);
-                oNewBook.title = (oSelectedBook.title || "") + " (Copy)";
-
-                oBinding.create(oNewBook);
-                MessageToast.show("Đã tạo bản sao cho cuốn sách: " + oSelectedBook.title);
             }
         },
 
@@ -263,6 +234,21 @@ sap.ui.define([
             if (this._oValueHelpDialog) {
                 this._oValueHelpDialog.close();
             }
+        },
+        onPressItem: function (oEvent) {
+            // Lấy dòng (item) vừa được bấm
+            var oItem = oEvent.getSource();
+            // Lấy Binding Context của dòng đó
+            var oBindingContext = oItem.getBindingContext();
+            
+            // Lấy thuộc tính khóa (ID cuốn sách). 
+            var sBookId = oBindingContext.getProperty("ID");
+           // Gọi Router để chuyển sang RouteDetail cùng tham số bookId
+            var oRouter = this.getOwnerComponent().getRouter();
+            oRouter.navTo("RouteDetail", {
+                bookId: sBookId
+            });
         }
     });
 });
+

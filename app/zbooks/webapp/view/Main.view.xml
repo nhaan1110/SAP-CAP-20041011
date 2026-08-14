@@ -5,108 +5,188 @@
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:fb="sap.ui.comp.filterbar"
-    height="100%">
-    
-    <f:DynamicPage id="dynamicPageId" preserveHeaderStateOnScroll="true" headerExpanded="true" showFooter="true" fitContent="true">
-        
+    height="100%"
+>
+    <f:DynamicPage id="dynamicPageId" preserveHeaderStateOnScroll="true" headerExpanded="true" showFooter="true"
+fitContent="true"
+    >
         <!-- DynamicPage Title -->
         <f:title>
             <f:DynamicPageTitle id="_IDGenDynamicPageTitle1">
                 <f:heading>
-                    <Title id="_IDGenTitle" text="Book Inventory Management"/>
+                    <Title
+                        id="_IDGenTitle"
+                        text="Book Inventory Management"
+                    />
                 </f:heading>
-                <f:actions>
-    <ToolbarSpacer id="_IDGenToolbarSpacer"/>
-<Button id="btnAdd" text="Add" type="Emphasized" icon="sap-icon://add" press="onAdd"/>
-<Button id="btnEdit" text="Edit" type="Attention" icon="sap-icon://edit" press="onEdit"/>
-<Button id="btnCopy" text="Copy" type="Accept" icon="sap-icon://copy" press="onCopy"/>
-<Button id="btnDelete" text="Delete" type="Reject" icon="sap-icon://delete" press="onDelete"/>
-</f:actions>
             </f:DynamicPageTitle>
         </f:title>
-        
+
         <!-- DynamicPage Header -->
         <f:header>
             <f:DynamicPageHeader id="dynamicPageHeader">
                 <f:content>
-                    <fb:FilterBar id="filterbar" useToolbar="false" search=".onSearch">
+                    <fb:FilterBar
+                        id="filterbar"
+                        useToolbar="false"
+                        search=".onSearch"
+                    >
                         <fb:filterGroupItems>
-                            
                             <!-- Ô LỌC 1: Tên sách -->
-                            <fb:FilterGroupItem name="title" label="Book Title" groupName="Group1" visibleInFilterBar="true">
+                            <fb:FilterGroupItem
+                                name="title"
+                                label="Book Title"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
                                 <fb:control>
-                                    <MultiComboBox name="title" items="{/Books}">
-                                        <core:Item key="{ID}" text="{title}"/>
+                                    <MultiComboBox
+                                        name="title"
+                                        items="{/Books}"
+                                    >
+                                        <core:Item
+                                            key="{ID}"
+                                            text="{title}"
+                                        />
                                     </MultiComboBox>
                                 </fb:control>
                             </fb:FilterGroupItem>
 
                             <!-- Ô LỌC 2: Tác giả -->
-                            <fb:FilterGroupItem name="author" label="Author" groupName="Group1" visibleInFilterBar="true">
+                            <fb:FilterGroupItem
+                                name="author"
+                                label="Author"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
                                 <fb:control>
-                                    <MultiComboBox name="author" items="{/Books}">
-                                        <core:Item key="{ID}" text="{author}"/>
+                                    <MultiComboBox
+                                        name="author"
+                                        items="{/Books}"
+                                    >
+                                        <core:Item
+                                            key="{ID}"
+                                            text="{author}"
+                                        />
                                     </MultiComboBox>
                                 </fb:control>
                             </fb:FilterGroupItem>
-
                         </fb:filterGroupItems>
                     </fb:FilterBar>
                 </f:content>
             </f:DynamicPageHeader>
         </f:header>
-        
+
         <!-- DynamicPage Content -->
         <f:content>
-            <Table id="booksTable" items="{/Books}" mode="SingleSelect">
+            <Table
+                id="booksTable"
+                items="{/Books}"
+                mode="MultiSelect"
+                growing="true"
+                growingThreshold="10"
+                sticky="HeaderToolbar,ColumnHeaders"
+            >
+                <!-- THÊM DÒNG NÀY -->
                 <headerToolbar>
                     <OverflowToolbar id="_IDGenOverflowToolbar1">
-                        <Title id="_IDGenTitle2" text="Book List" level="H2"/>
+                        <Title
+                            id="_IDGenTitle2"
+                            text="Book List"
+                            level="H2"
+                        />
+
+                        <ToolbarSpacer id="_IDGenToolbarSpacer" />
+                        <Button
+                            id="btnAdd"
+                            text="Add"
+                            type="Emphasized"
+                            icon="sap-icon://add"
+                            press="onAdd"
+                        />
+                        <Button
+                            id="btnEdit"
+                            text="Edit"
+                            type="Attention"
+                            icon="sap-icon://edit"
+                            press="onEdit"
+                        />
+                        <Button
+                            id="btnDelete"
+                            text="Delete"
+                            type="Reject"
+                            icon="sap-icon://delete"
+                            press="onDelete"
+                        />
                     </OverflowToolbar>
                 </headerToolbar>
                 <columns>
-                    <Column id="_IDGenColumn"><Text id="_IDGenText" text="Book ID (ID)" /></Column>
-                    <Column id="_IDGenColumn1"><Text id="_IDGenText1" text="Book Title" /></Column>
-                    <Column id="_IDGenColumn2"><Text id="_IDGenText2" text="Author" /></Column>
-                    <Column id="_IDGenColumn3"><Text id="_IDGenText3" text="Stock Quantity" /></Column>
+                    <Column id="_IDGenColumn">
+                        <Text
+                            id="_IDGenText"
+                            text="Book ID (ID)"
+                        />
+                    </Column>
+                    <Column id="_IDGenColumn1">
+                        <Text
+                            id="_IDGenText1"
+                            text="Book Title"
+                        />
+                    </Column>
+                    <Column id="_IDGenColumn2">
+                        <Text
+                            id="_IDGenText2"
+                            text="Author"
+                        />
+                    </Column>
+                    <Column id="_IDGenColumn3">
+                        <Text
+                            id="_IDGenText3"
+                            text="Stock Quantity"
+                        />
+                    </Column>
                 </columns>
                 <items>
-                    <ColumnListItem id="_IDGenColumnListItem">
+                    <ColumnListItem
+                        id="_IDGenColumnListItem"
+                        type="Navigation"
+                        press=".onPressItem"
+                    >
                         <cells>
-                            <Text id="_IDGenText4" text="{ID}" />
-                            <Text id="_IDGenText5" text="{title}" />
-                            <Input id="_IDGenInput"
+                            <Text
+                                id="_IDGenText4"
+                                text="{ID}"
+                            />
+                            <Text
+                                id="_IDGenText5"
+                                text="{title}"
+                            />
+                            <Input
+                                id="_IDGenInput"
                                 value="{author}"
                                 showValueHelp="true"
                                 valueHelpRequest="onValueHelpRequest"
-                                placeholder="Select Author" />
-                            <ObjectStatus 
-    id="_IDGenStockStatus" 
-    text="{
+                                placeholder="Select Author"
+                            />
+                            <ObjectStatus
+                                id="_IDGenStockStatus"
+                                text="{
         path: 'stock',
         formatter: '.formatStockText'
-    }" 
-    state="{
+    }"
+                                state="{
         path: 'stock',
         formatter: '.formatStockState'
     }"
-    icon="{
+                                icon="{
         path: 'stock',
         formatter: '.formatStockIcon'
-    }" />
+    }"
+                            />
                         </cells>
                     </ColumnListItem>
                 </items>
             </Table>
         </f:content>
-
-        <!-- DynamicPage Footer -->
-        <!-- <f:footer>
-            <OverflowToolbar id="_IDGenOverflowToolbar2">
-                <ToolbarSpacer id="_IDGenToolbarSpacer1"/>
-                <Button id="_IDGenButton4" type="Accept" text="Accept"/>
-                <Button id="_IDGenButton5" type="Reject" text="Reject"/>
-            </OverflowToolbar>
-        </f:footer> -->
     </f:DynamicPage>
 </mvc:View>
