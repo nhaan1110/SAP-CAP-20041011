@@ -14,7 +14,7 @@ sap.ui.define([
     return Controller.extend("zbooks.controller.Detail", {
 
         /**
-         * Khởi tạo Controller
+         * Initialize Controller
          */
         onInit: function () {
             var oRouter = this.getOwnerComponent().getRouter();
@@ -22,77 +22,82 @@ sap.ui.define([
         },
 
         /**
-         * Xử lý khi Router khớp với RouteDetail
-         * @param {sap.ui.base.Event} oEvent 
+         * Handle route matched for RouteDetail
          */
         _onObjectMatched: function (oEvent) {
-            // 1. Lấy tham số bookId từ URL 
             var sBookId = oEvent.getParameter("arguments").bookId;
 
-            // 2. Bind Element (OData V4 Context) 
             this.getView().bindElement({
                 path: "/Books(" + sBookId + ")"
             });
         },
 
-        onEditPress: function () {
-            MessageToast.show("Bấm nút Edit thành công!");
+        /**
+         * Navigate back to previous page
+         */
+        onNavBack: function () {
+            var oHistory = History.getInstance();
+            var sPreviousHash = oHistory.getPreviousHash();
+
+            if (sPreviousHash !== undefined) {
+                window.history.go(-1);
+            } else {
+                var oRouter = this.getOwnerComponent().getRouter();
+                oRouter.navTo("RouteMain", {}, true);
+            }
         },
 
-     
-        onDeletePress: function () {
-            MessageBox.confirm("Bạn có chắc muốn xóa không?", {
-                onClose: function (sAction) {
-                    if (sAction === MessageBox.Action.OK) {
-                        MessageToast.show("Đã xóa thành công!");
-                    }
-                }
-            });
-        },
-
+        /**
+         * Handle Book Edit
+         */
         onEditPress: function () {
             var oView = this.getView();
             var oContext = oView.getBindingContext();
 
             if (!oContext) {
-                MessageToast.show("Không tìm thấy dữ liệu sách!");
+                MessageToast.show("Book data not found!");
                 return;
             }
 
             if (!this._oEditDialog) {
                 this._oEditDialog = new Dialog({
-                    title: "Chỉnh sửa thông tin sách",
+                    title: "Edit Book Details",
                     contentWidth: "400px",
                     content: [
                         new VBox({
                             class: "sapUiSmallMargin",
                             items: [
-                                new Label({ text: "Tựa sách (Title)" }),
+                                new Label({ text: "Title" }),
                                 new Input({ value: "{title}" }),
-                                new Label({ text: "Tác giả (Author)", class: "sapUiSmallMarginTop" }),
+                                new Label({ text: "Author", class: "sapUiSmallMarginTop" }),
                                 new Input({ value: "{author}" }),
-                                new Label({ text: "Số lượng tồn kho (Stock)", class: "sapUiSmallMarginTop" }),
+                                new Label({ text: "Stock Quantity", class: "sapUiSmallMarginTop" }),
                                 new Input({ value: "{stock}", type: "Number" })
                             ]
                         })
                     ],
                     beginButton: new Button({
-                        text: "Lưu",
+                        text: "Save",
                         type: "Emphasized",
                         press: function () {
                             oView.getModel().submitBatch("$auto").then(function () {
-                                MessageToast.show("Đã cập nhật vào cơ sở dữ liệu!");
+                                MessageToast.show("Updated database successfully!");
+                                
+                                if (oView.getModel() && oView.getModel().refresh) {
+                                    oView.getModel().refresh();
+                                }
+
                                 this._oEditDialog.close();
                             }.bind(this)).catch(function (oError) {
-                                MessageBox.error("Lưu thất bại: " + oError.message);
+                                MessageBox.error("Save failed: " + (oError.message || "Unknown error"));
                             });
                         }.bind(this)
                     }),
                     endButton: new Button({
-                        text: "Hủy",
+                        text: "Cancel",
                         press: function () {
-                            if (oContext.hasPendingChanges()) {
-                                oContext.resetChanges();
+                            if (oContext && oContext.getBinding() && oContext.getBinding().resetChanges) {
+                                oContext.getBinding().resetChanges();
                             }
                             this._oEditDialog.close();
                         }.bind(this)
@@ -104,26 +109,36 @@ sap.ui.define([
             this._oEditDialog.open();
         },
 
+        /**
+         * Handle Book Delete
+         */
         onDeletePress: function () {
-            var oContext = this.getView().getBindingContext();
+            var oView = this.getView();
+            var oContext = oView.getBindingContext();
+
             if (!oContext) {
                 return;
             }
 
-            MessageBox.confirm("Bạn có chắc chắn muốn xóa cuốn sách này?", {
-                title: "Xác nhận xóa",
+            MessageBox.confirm("Are you sure you want to delete this book?", {
+                title: "Confirm Delete",
                 onClose: function (sAction) {
                     if (sAction === MessageBox.Action.OK) {
                         oContext.delete().then(function () {
-                            MessageToast.show("Đã xóa sách thành công!");
+                            MessageToast.show("Book deleted successfully!");
+
+                            if (oView.getModel() && oView.getModel().refresh) {
+                                oView.getModel().refresh();
+                            }
+
                             this.onNavBack();
                         }.bind(this)).catch(function (oError) {
-                            MessageBox.error("Xóa thất bại: " + oError.message);
+                            MessageBox.error("Delete failed: " + (oError.message || "Unknown error"));
                         });
                     }
                 }.bind(this)
             });
-        }, 
+        }
 
     });
 });

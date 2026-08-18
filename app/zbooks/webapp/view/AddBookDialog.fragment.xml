@@ -3,23 +3,23 @@
     xmlns:core="sap.ui.core"
     xmlns:f="sap.ui.layout.form">
     
-    <Dialog id="addBookDialog" title="Thêm sách mới" contentWidth="400px">
+    <Dialog id="addBookDialog" title="Add New Book" contentWidth="400px">
         <f:SimpleForm editable="true" layout="ColumnLayout">
-            <Label text="Tên sách" required="true"/>
-            <Input value="{newBook>/title}" placeholder="Nhập tên sách..."/>
+            <Label text="Book Title" required="true"/>
+            <Input value="{newBook>/title}" placeholder="Enter book title..."/>
             
-            <Label text="Tác giả"/>
-            <Input value="{newBook>/author}" placeholder="Nhập tên tác giả..."/>
+            <Label text="Author"/>
+            <Input value="{newBook>/author}" placeholder="Enter author name..."/>
             
-            <Label text="Số lượng (Stock)"/>
+            <Label text="Stock Quantity"/>
             <Input value="{newBook>/stock}" type="Number"/>
         </f:SimpleForm>
         
         <beginButton>
-            <Button text="Lưu" type="Emphasized" press="onSaveBook"/>
+            <Button text="Save" type="Emphasized" press="onSaveBook"/>
         </beginButton>
         <endButton>
-            <Button text="Hủy" press="onCloseAddDialog"/>
+            <Button text="Cancel" press="onCloseAddDialog"/>
         </endButton>
     </Dialog>
 </core:FragmentDefinition>

@@ -66,8 +66,12 @@ sap.ui.define([
                 return aResult;
             }, []);
 
-            var oBinding = oTable.getBinding("items");
+            var oBinding = oTable.getBinding("rows");
             if (oBinding) {
+                var oModel = this.getView().getModel();
+                if (oModel && oModel.hasPendingChanges && oModel.hasPendingChanges()) {
+                    oModel.submitBatch("$auto");
+                }
                 oBinding.filter(aTableFilters);
             }
         },
@@ -75,7 +79,6 @@ sap.ui.define([
         onAdd: function () {
             var oView = this.getView();
 
-           
             var oNewBookModel = new sap.ui.model.json.JSONModel({
                 title: "",
                 author: "",
@@ -87,7 +90,7 @@ sap.ui.define([
                 this._pAddDialog = this.loadFragment({
                     name: "zbooks.view.AddBookDialog"
                 }).then(function (oDialog) {
-                    oView.addDependent(oDialog); // Bắt buộc để Dialog nhận Model
+                    oView.addDependent(oDialog);
                     return oDialog;
                 });
             }
@@ -97,55 +100,49 @@ sap.ui.define([
             });
         },
 
-       onSaveBook: function () {
-    var oView = this.getView();
-    var oNewBookData = oView.getModel("newBook").getData();
+        onSaveBook: function () {
+            var oView = this.getView();
+            var oModel = oView.getModel(); // OData V4 Model
+            var oNewBookData = oView.getModel("newBook").getData();
 
-    if (!oNewBookData.title || !oNewBookData.title.trim()) {
-        MessageToast.show("Vui lòng nhập tên sách!");
-        return;
-    }
-
-    var oTable = this.byId("booksTable");
-    var oBinding = oTable ? oTable.getBinding("items") : null;
-
-    var aItems = oTable ? oTable.getItems() : [];
-    var iMaxId = 0;
-
-    aItems.forEach(function (oItem) {
-        var oContext = oItem.getBindingContext();
-        if (oContext) {
-            var iId = parseInt(oContext.getProperty("ID"), 10);
-            if (!isNaN(iId) && iId > iMaxId) {
-                iMaxId = iId;
+            if (!oNewBookData.title || !oNewBookData.title.trim()) {
+                MessageToast.show("Please enter a book title!");
+                return;
             }
-        }
-    });
 
-    var iNewId = iMaxId + 1; 
+            var oTable = this.byId("booksTable");
+            var oBinding = oTable ? oTable.getBinding("rows") : null;
 
-    var oPayload = {
-        ID: iNewId, 
-        title: oNewBookData.title.trim(),
-        author: oNewBookData.author ? oNewBookData.author.trim() : "",
-        stock: parseInt(oNewBookData.stock, 10) || 0
-    };
+            if (oBinding && oBinding.create) {
+                var oPayload = {
+                    title: oNewBookData.title.trim(),
+                    author: oNewBookData.author ? oNewBookData.author.trim() : "",
+                    stock: parseInt(oNewBookData.stock, 10) || 0
+                };
 
-    // Xử lý OData V4 
-    if (oBinding && oBinding.create) {
-        var oContext = oBinding.create(oPayload);
+                var oContext = oBinding.create(oPayload, false, false);
 
-        oContext.created().then(function () {
-            MessageToast.show("Đã lưu sách mới vào CSDL thành công!");
-        }).catch(function (oError) {
-            MessageBox.error("Lỗi khi lưu sách: " + (oError.message || "Lỗi không xác định"));
-        });
+                oContext.created().then(function () {
+                    MessageToast.show("New book saved successfully!");
 
-        this.onCloseAddDialog();
-    } else {
-        MessageToast.show("Không tìm thấy Binding của bảng để thêm mới!");
-    }
-},
+                    if (oBinding.refresh) {
+                        oBinding.refresh();
+                    }
+                }).catch(function (oError) {
+                    MessageBox.error("Error saving book: " + (oError.message || "Unknown error"));
+                });
+
+                if (oModel && oModel.submitBatch) {
+                    oModel.submitBatch("$auto").catch(function(oErr) {
+                        console.error("Submit batch failed", oErr);
+                    });
+                }
+
+                this.onCloseAddDialog();
+            } else {
+                MessageToast.show("Table binding not found for creation!");
+            }
+        },
 
         onCloseAddDialog: function () {
             if (this._pAddDialog) {
@@ -157,47 +154,46 @@ sap.ui.define([
 
         onEdit: function () {
             var oTable = this.byId("booksTable");
-            var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
+            var iSelectedIndex = oTable ? oTable.getSelectedIndex() : -1;
 
-            if (!oSelectedItem) {
-                MessageToast.show("Vui lòng chọn 1 cuốn sách trong bảng để sửa!");
+            if (iSelectedIndex === -1) {
+                MessageToast.show("Please select a book from the table to edit!");
                 return;
             }
 
-            var oContext = oSelectedItem.getBindingContext();
+            var oContext = oTable.getContextByIndex(iSelectedIndex);
             var oBook = oContext ? oContext.getObject() : null;
             if (oBook) {
-                MessageToast.show("Đang chọn sửa sách: " + (oBook.title || oBook.ID));
+                MessageToast.show("Selected book for editing: " + (oBook.title || oBook.ID));
             }
         },
 
         onDelete: function () {
             var oTable = this.byId("booksTable");
-            var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
+            var iSelectedIndex = oTable ? oTable.getSelectedIndex() : -1;
 
-            if (!oSelectedItem) {
-                MessageToast.show("Vui lòng chọn 1 cuốn sách để xóa!");
+            if (iSelectedIndex === -1) {
+                MessageToast.show("Please select a book to delete!");
                 return;
             }
 
-            var oContext = oSelectedItem.getBindingContext();
+            var oContext = oTable.getContextByIndex(iSelectedIndex);
             if (!oContext) { return; }
 
-            MessageBox.confirm("Bạn có chắc chắn muốn xóa cuốn sách này?", {
-                title: "Xác nhận xóa",
+            MessageBox.confirm("Are you sure you want to delete this book?", {
+                title: "Confirm Delete",
                 onClose: function (oAction) {
                     if (oAction === MessageBox.Action.OK) {
                         oContext.delete().then(function () {
-                            MessageToast.show("Đã xóa thành công!");
+                            MessageToast.show("Deleted successfully!");
                         }).catch(function (oError) {
-                            MessageBox.error("Xóa thất bại!");
+                            MessageBox.error("Delete failed!");
                         });
                     }
                 }
             });
         },
 
-        // --- VALUE HELP ---
         onValueHelpRequest: function (oEvent) {
             this._oInputSource = oEvent.getSource();
 
@@ -235,20 +231,26 @@ sap.ui.define([
                 this._oValueHelpDialog.close();
             }
         },
+
         onPressItem: function (oEvent) {
-            // Lấy dòng (item) vừa được bấm
-            var oItem = oEvent.getSource();
-            // Lấy Binding Context của dòng đó
-            var oBindingContext = oItem.getBindingContext();
-            
-            // Lấy thuộc tính khóa (ID cuốn sách). 
-            var sBookId = oBindingContext.getProperty("ID");
-           // Gọi Router để chuyển sang RouteDetail cùng tham số bookId
-            var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.navTo("RouteDetail", {
-                bookId: sBookId
-            });
+            var oBindingContext = oEvent.getSource().getBindingContext() 
+                || oEvent.getParameter("rowBindingContext");
+
+            if (!oBindingContext) {
+                var iRowIndex = oEvent.getParameter("rowIndex");
+                var oTable = this.byId("booksTable");
+                if (iRowIndex !== undefined && iRowIndex !== -1 && oTable) {
+                    oBindingContext = oTable.getContextByIndex(iRowIndex);
+                }
+            }
+
+            if (oBindingContext) {
+                var sBookId = oBindingContext.getProperty("ID");
+                var oRouter = this.getOwnerComponent().getRouter();
+                oRouter.navTo("RouteDetail", {
+                    bookId: sBookId
+                });
+            }
         }
     });
 });
-
