@@ -1,5 +1,5 @@
 {
-  "name": "zbooks",
+  "name": "zbooks_sapm",
   "version": "0.0.1",
   "description": "An SAP Fiori application.",
   "keywords": [
@@ -16,7 +16,7 @@
     "eslint": "^10"
   },
   "scripts": {
-       "start": "ui5 serve --config ui5.yaml --open index.html",
+    "start": "ui5 serve --config ui5.yaml --open index.html",
     "deploy-config": "npx -p @sap/ux-ui5-tooling fiori add deploy-config cf"
   }
 }
