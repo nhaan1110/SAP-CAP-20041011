@@ -15,8 +15,8 @@
     "@sap-ux/eslint-plugin-fiori-tools": "^10.0.0",
     "eslint": "^10"
   },
-  "scripts": {
-    "start": "ui5 serve --config ui5.yaml --open index.html",
-    "deploy-config": "npx -p @sap/ux-ui5-tooling fiori add deploy-config cf"
-  }
+ "scripts": {
+  "start": "ui5 serve -o index.html",
+  "deploy-config": "npx -p @sap/ux-ui5-tooling fiori add deploy-config cf"
+}
 }

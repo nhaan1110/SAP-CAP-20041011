@@ -5,6 +5,7 @@
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:table="sap.ui.table"
     height="100%"
 >
     <f:DynamicPage 
@@ -36,7 +37,7 @@
                         search=".onSearch"
                     >
                         <fb:filterGroupItems>
-                            <!-- Ô LỌC 1: Tên sách -->
+                            <!-- Filter 1: Book Title -->
                             <fb:FilterGroupItem
                                 name="title"
                                 label="Book Title"
@@ -56,7 +57,7 @@
                                 </fb:control>
                             </fb:FilterGroupItem>
 
-                            <!-- Ô LỌC 2: Tác giả -->
+                            <!-- Filter 2: Author -->
                             <fb:FilterGroupItem
                                 name="author"
                                 label="Author"
@@ -81,14 +82,26 @@
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- DynamicPage Content: sap.m.Table -->
+        <!-- DynamicPage Content -->
         <f:content>
-            <Table
+            <table:Table
                 id="booksTable"
-                items="{/Books}"
-                mode="MultiSelect"
+                rows="{/Books}"
+                selectionMode="MultiToggle"
+                visibleRowCountMode="Auto"
+                rowActionCount="1"
             >
-                <headerToolbar>
+                <table:rowActionTemplate>
+                    <table:RowAction id="_IDGenRowAction">
+                        <table:RowActionItem
+                            id="_IDGenRowActionItem"
+                            type="Navigation"
+                            press=".onPressItem"
+                        />
+                    </table:RowAction>
+                </table:rowActionTemplate>
+
+                <table:extension>
                     <OverflowToolbar id="_IDGenOverflowToolbar1">
                         <Title
                             id="_IDGenTitle2"
@@ -118,58 +131,51 @@
                             press="onDelete"
                         />
                     </OverflowToolbar>
-                </headerToolbar>
+                </table:extension>
 
-                <columns>
+                <table:columns>
                     <!-- Book ID -->
-                    <Column id="_IDGenColumn" width="10rem">
-                        <Text text="Book ID (ID)" />
-                    </Column>
+                    <table:Column id="_IDGenColumn" width="10rem">
+                        <Label text="Book ID (ID)" />
+                        <table:template>
+                            <Text text="{ID}" />
+                        </table:template>
+                    </table:Column>
 
                     <!-- Book Title -->
-                    <Column id="_IDGenColumn1">
-                        <Text text="Book Title" />
-                    </Column>
+                    <table:Column id="_IDGenColumn1">
+                        <Label text="Book Title" />
+                        <table:template>
+                            <Text text="{title}" />
+                        </table:template>
+                    </table:Column>
 
                     <!-- Author -->
-                    <Column id="_IDGenColumn2">
-                        <Text text="Author" />
-                    </Column>
-
-                    <!-- Stock Quantity -->
-                    <Column id="_IDGenColumn3">
-                        <Text text="Stock Quantity" />
-                    </Column>
-                </columns>
-
-                <items>
-                    <ColumnListItem type="Navigation" press=".onPressItem">
-                        <cells>
-                            <Text
-                                id="_IDGenText4"
-                                text="{ID}"
-                            />
-                            <Text
-                                id="_IDGenText5"
-                                text="{title}"
-                            />
+                    <table:Column id="_IDGenColumn2">
+                        <Label text="Author" />
+                        <table:template>
                             <Input
-                                id="_IDGenInput"
                                 value="{author}"
                                 showValueHelp="true"
                                 valueHelpRequest="onValueHelpRequest"
                                 placeholder="Select Author"
                             />
+                        </table:template>
+                    </table:Column>
+
+                    <!-- Stock Quantity -->
+                    <table:Column id="_IDGenColumn3">
+                        <Label text="Stock Quantity" />
+                        <table:template>
                             <ObjectStatus
-                                id="_IDGenStockStatus"
                                 text="{path: 'stock', formatter: '.formatStockText'}"
                                 state="{path: 'stock', formatter: '.formatStockState'}"
                                 icon="{path: 'stock', formatter: '.formatStockIcon'}"
                             />
-                        </cells>
-                    </ColumnListItem>
-                </items>
-            </Table>
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+            </table:Table>
         </f:content>
     </f:DynamicPage>
 </mvc:View>

@@ -1,6 +1,7 @@
 <core:FragmentDefinition
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
+    
     <SelectDialog
         id="authorValueHelpDialog"
         title="Select Author"
@@ -8,6 +9,7 @@
         confirm=".onValueHelpConfirm"
         cancel=".onValueHelpClose"
         items="{path: '/Books'}">
+        
         <StandardListItem
             title="{author}"
             description="{title}"

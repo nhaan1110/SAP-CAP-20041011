@@ -8,13 +8,13 @@
     xmlns:layout="sap.ui.layout"
     xmlns:form="sap.ui.layout.form"
     height="100%">
-	
+    
     <ObjectPageLayout
         id="ObjectPageLayout"
         showTitleInHeaderContent="true"
         upperCaseAnchorBar="false">
 
-        <!-- 1. HEADER TITLE  -->
+        <!-- 1. HEADER TITLE -->
         <headerTitle>
             <ObjectPageDynamicHeaderTitle>
 
@@ -47,7 +47,7 @@
             </ObjectPageDynamicHeaderTitle>
         </headerTitle>
 
-        <!-- 2. HEADER CONTENT (ĐÃ SỬA SANG TIẾNG ANH) -->
+        <!-- 2. HEADER CONTENT -->
         <headerContent>
             <m:FlexBox wrap="Wrap" fitContainer="true" alignItems="Center">
 
@@ -70,54 +70,54 @@
             </m:FlexBox>
         </headerContent>
 
-        <!-- 3. SECTIONS  -->
-<sections>
-    <ObjectPageSection titleUppercase="false" id="generalSection" title="General Information">
-        <subSections>
-            <ObjectPageSubSection id="generalSubSection">
-                <blocks>
-                    <form:SimpleForm 
-                        editable="false" 
-                        layout="ColumnLayout" 
-                        columnsM="2"
-                        columnsL="2"
-                        columnsXL="2">
-                        <form:content>
-                            
-                            <!-- Cột 1: Biểu tượng Sách (Xanh Dương) -->
-                            <core:Title />
-                            <m:ObjectStatus 
-                                text="Book Details" 
-                                icon="sap-icon://education" 
-                                state="Information" 
-                                class="sapUiTinyMarginBottom" />
+        <!-- 3. SECTIONS -->
+        <sections>
+            <ObjectPageSection titleUppercase="false" id="generalSection" title="General Information">
+                <subSections>
+                    <ObjectPageSubSection id="generalSubSection">
+                        <blocks>
+                            <form:SimpleForm 
+                                editable="false" 
+                                layout="ColumnLayout" 
+                                columnsM="2"
+                                columnsL="2"
+                                columnsXL="2">
+                                <form:content>
+                                    
+                                    <!-- Column 1 -->
+                                    <core:Title />
+                                    <m:ObjectStatus 
+                                        text="Book Details" 
+                                        icon="sap-icon://education" 
+                                        state="Information" 
+                                        class="sapUiTinyMarginBottom" />
 
-                            <m:Label text="Book ID" />
-                            <m:Text text="{ID}" />
+                                    <m:Label text="Book ID" />
+                                    <m:Text text="{ID}" />
 
-                            <m:Label text="Book Title" />
-                            <m:Text text="{title}" renderWhitespace="true" />
+                                    <m:Label text="Book Title" />
+                                    <m:Text text="{title}" renderWhitespace="true" />
 
-                            <!-- Cột 2: Biểu tượng Kho (Xanh Lá) -->
-                            <core:Title />
-                            <m:ObjectStatus 
-                                text="Inventory Details" 
-                                icon="sap-icon://product" 
-                                state="Success" 
-                                class="sapUiTinyMarginBottom" />
+                                    <!-- Column 2 -->
+                                    <core:Title />
+                                    <m:ObjectStatus 
+                                        text="Inventory Details" 
+                                        icon="sap-icon://product" 
+                                        state="Success" 
+                                        class="sapUiTinyMarginBottom" />
 
-                            <m:Label text="Author" />
-                            <m:Text text="{author}" />
+                                    <m:Label text="Author" />
+                                    <m:Text text="{author}" />
 
-                            <m:Label text="Stock Quantity" />
-                            <m:Text text="{stock}" />
+                                    <m:Label text="Stock Quantity" />
+                                    <m:Text text="{stock}" />
 
-                        </form:content>
-                    </form:SimpleForm>
-                </blocks>
-            </ObjectPageSubSection>
-        </subSections>
-    </ObjectPageSection>
-</sections>
+                                </form:content>
+                            </form:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+        </sections>
     </ObjectPageLayout>
 </mvc:View>

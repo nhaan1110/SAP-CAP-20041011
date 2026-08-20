@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@cap-js/sqlite": "^3.0.2",
-    "@sap/cds": "^10.0.6",
+    "@sap/cds": "^10.0.5",
     "accepts": "^2.0.0",
     "body-parser": "^2.3.0",
     "bytes": "^3.1.2",
@@ -96,7 +96,6 @@
     "app/*"
   ],
   "devDependencies": {
-    "@sap/cds-dk": "^10.0.7",
     "cds-plugin-ui5": "^0.17.0"
   }
 }
