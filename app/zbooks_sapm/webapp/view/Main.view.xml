@@ -84,98 +84,84 @@
 
         <!-- DynamicPage Content -->
         <f:content>
-            <table:Table
-                id="booksTable"
-                rows="{/Books}"
-                selectionMode="MultiToggle"
-                visibleRowCountMode="Auto"
-                rowActionCount="1"
-            >
-                <table:rowActionTemplate>
-                    <table:RowAction id="_IDGenRowAction">
-                        <table:RowActionItem
-                            id="_IDGenRowActionItem"
-                            type="Navigation"
-                            press=".onPressItem"
-                        />
-                    </table:RowAction>
-                </table:rowActionTemplate>
+   <Table
+    id="booksTable"
+    mode="MultiSelect"
+    growing="true"
+    growingThreshold="20"
+    items="{
+        path: '/Books',
+        sorter: {
+            path: 'ID',
+            descending: false
+        }
+    }"
+>
+    <!-- Header Toolbar -->
+    <headerToolbar>
+        <OverflowToolbar id="_IDGenOverflowToolbar1">
+            <Title id="_IDGenTitle2" text="Book List" level="H2" />
+            <ToolbarSpacer id="_IDGenToolbarSpacer" />
+            <Button id="btnAdd" text="Add" type="Emphasized" icon="sap-icon://add" press="onAdd" />
+            <Button id="btnEdit" text="Edit" type="Attention" icon="sap-icon://edit" press="onEdit" />
+            <Button id="btnDelete" text="Delete" type="Reject" icon="sap-icon://delete" press="onDelete" />
+        </OverflowToolbar>
+    </headerToolbar>
 
-                <table:extension>
-                    <OverflowToolbar id="_IDGenOverflowToolbar1">
-                        <Title
-                            id="_IDGenTitle2"
-                            text="Book List"
-                            level="H2"
-                        />
-                        <ToolbarSpacer id="_IDGenToolbarSpacer" />
-                        <Button
-                            id="btnAdd"
-                            text="Add"
-                            type="Emphasized"
-                            icon="sap-icon://add"
-                            press="onAdd"
-                        />
-                        <Button
-                            id="btnEdit"
-                            text="Edit"
-                            type="Attention"
-                            icon="sap-icon://edit"
-                            press="onEdit"
-                        />
-                        <Button
-                            id="btnDelete"
-                            text="Delete"
-                            type="Reject"
-                            icon="sap-icon://delete"
-                            press="onDelete"
-                        />
-                    </OverflowToolbar>
-                </table:extension>
+    <!-- Chỉ còn đúng 4 Cột -->
+    <columns>
+        <!-- Cột 1: ID -->
+        <Column id="colID" width="5rem">
+            <header>
+                <Text text="ID" />
+            </header>
+        </Column>
 
-                <table:columns>
-                    <!-- Book ID -->
-                    <table:Column id="_IDGenColumn" width="10rem">
-                        <Label text="Book ID (ID)" />
-                        <table:template>
-                            <Text text="{ID}" />
-                        </table:template>
-                    </table:Column>
+        <!-- Cột 2: Book Title -->
+        <Column id="colTitle">
+            <header>
+                <Text text="Book Title" />
+            </header>
+        </Column>
 
-                    <!-- Book Title -->
-                    <table:Column id="_IDGenColumn1">
-                        <Label text="Book Title" />
-                        <table:template>
-                            <Text text="{title}" />
-                        </table:template>
-                    </table:Column>
+        <!-- Cột 3: Author -->
+        <Column id="colAuthor" width="12rem" minScreenWidth="Tablet" demandPopin="true">
+            <header>
+                <Text text="Author" />
+            </header>
+        </Column>
 
-                    <!-- Author -->
-                    <table:Column id="_IDGenColumn2">
-                        <Label text="Author" />
-                        <table:template>
-                            <Input
-                                value="{author}"
-                                showValueHelp="true"
-                                valueHelpRequest="onValueHelpRequest"
-                                placeholder="Select Author"
-                            />
-                        </table:template>
-                    </table:Column>
+        <!-- Cột 4: Stock Quantity (Đã xóa cột Price nằm trước nó, căn lề trái chuẩn) -->
+        <Column id="colStock" width="14rem" hAlign="Begin">
+            <header>
+                <Text text="Stock Quantity" />
+            </header>
+        </Column>
+    </columns>
 
-                    <!-- Stock Quantity -->
-                    <table:Column id="_IDGenColumn3">
-                        <Label text="Stock Quantity" />
-                        <table:template>
-                            <ObjectStatus
-                                text="{path: 'stock', formatter: '.formatStockText'}"
-                                state="{path: 'stock', formatter: '.formatStockState'}"
-                                icon="{path: 'stock', formatter: '.formatStockIcon'}"
-                            />
-                        </table:template>
-                    </table:Column>
-                </table:columns>
-            </table:Table>
+    <!-- Đúng 4 Ô dữ liệu khớp chuẩn 100% với 4 Cột ở trên -->
+    <items>
+        <ColumnListItem id="_IDGenColumnListItem" vAlign="Middle" type="Navigation" press=".onPressItem">
+            <cells>
+                <!-- Cell 1: ID -->
+                <ObjectIdentifier title="{ID}" />
+
+                <!-- Cell 2: Title -->
+                <Text text="{title}" wrapping="false" />
+
+                <!-- Cell 3: Author -->
+                <Text text="{author}" />
+
+                <!-- Cell 4: Stock Status -->
+                <ObjectStatus
+                    text="{path: 'stock', formatter: '.formatStockText'}"
+                    state="{path: 'stock', formatter: '.formatStockState'}"
+                    icon="{path: 'stock', formatter: '.formatStockIcon'}"
+                />
+            </cells>
+        </ColumnListItem>
+    </items>
+</Table>
         </f:content>
     </f:DynamicPage>
 </mvc:View>

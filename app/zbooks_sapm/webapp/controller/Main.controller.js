@@ -66,7 +66,8 @@ sap.ui.define([
                 return aResult;
             }, []);
 
-            var oBinding = oTable.getBinding("rows");
+            // ĐỔI: sap.m.Table dùng binding "items" thay vì "rows"
+            var oBinding = oTable.getBinding("items");
             if (oBinding) {
                 var oModel = this.getView().getModel();
                 if (oModel && oModel.hasPendingChanges && oModel.hasPendingChanges()) {
@@ -76,6 +77,7 @@ sap.ui.define([
             }
         },
 
+        // --- ADD ---
         onAdd: function () {
             var oView = this.getView();
 
@@ -102,7 +104,7 @@ sap.ui.define([
 
         onSaveBook: function () {
             var oView = this.getView();
-            var oModel = oView.getModel(); // OData V4 Model
+            var oModel = oView.getModel();
             var oNewBookData = oView.getModel("newBook").getData();
 
             if (!oNewBookData.title || !oNewBookData.title.trim()) {
@@ -111,7 +113,8 @@ sap.ui.define([
             }
 
             var oTable = this.byId("booksTable");
-            var oBinding = oTable ? oTable.getBinding("rows") : null;
+            // ĐỔI: Lấy binding từ "items"
+            var oBinding = oTable ? oTable.getBinding("items") : null;
 
             if (oBinding && oBinding.create) {
                 var oPayload = {
@@ -152,32 +155,36 @@ sap.ui.define([
             }
         },
 
+        // --- EDIT ---
         onEdit: function () {
             var oTable = this.byId("booksTable");
-            var iSelectedIndex = oTable ? oTable.getSelectedIndex() : -1;
+            // ĐỔI: sap.m.Table dùng getSelectedItem() hoặc getSelectedContexts()
+            var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
 
-            if (iSelectedIndex === -1) {
+            if (!oSelectedItem) {
                 MessageToast.show("Please select a book from the table to edit!");
                 return;
             }
 
-            var oContext = oTable.getContextByIndex(iSelectedIndex);
+            var oContext = oSelectedItem.getBindingContext();
             var oBook = oContext ? oContext.getObject() : null;
             if (oBook) {
                 MessageToast.show("Selected book for editing: " + (oBook.title || oBook.ID));
             }
         },
 
+        // --- DELETE ---
         onDelete: function () {
             var oTable = this.byId("booksTable");
-            var iSelectedIndex = oTable ? oTable.getSelectedIndex() : -1;
+            // ĐỔI: Tương tự Edit, lấy Item được chọn từ sap.m.Table
+            var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
 
-            if (iSelectedIndex === -1) {
+            if (!oSelectedItem) {
                 MessageToast.show("Please select a book to delete!");
                 return;
             }
 
-            var oContext = oTable.getContextByIndex(iSelectedIndex);
+            var oContext = oSelectedItem.getBindingContext();
             if (!oContext) { return; }
 
             MessageBox.confirm("Are you sure you want to delete this book?", {
@@ -194,6 +201,7 @@ sap.ui.define([
             });
         },
 
+        // --- VALUE HELP ---
         onValueHelpRequest: function (oEvent) {
             this._oInputSource = oEvent.getSource();
 
@@ -232,17 +240,11 @@ sap.ui.define([
             }
         },
 
+        // --- NAVIGATION ---
         onPressItem: function (oEvent) {
-            var oBindingContext = oEvent.getSource().getBindingContext() 
-                || oEvent.getParameter("rowBindingContext");
-
-            if (!oBindingContext) {
-                var iRowIndex = oEvent.getParameter("rowIndex");
-                var oTable = this.byId("booksTable");
-                if (iRowIndex !== undefined && iRowIndex !== -1 && oTable) {
-                    oBindingContext = oTable.getContextByIndex(iRowIndex);
-                }
-            }
+            // ĐỔI: sap.m.Table lấy binding direct từ Item được bấm
+            var oItem = oEvent.getSource();
+            var oBindingContext = oItem ? oItem.getBindingContext() : null;
 
             if (oBindingContext) {
                 var sBookId = oBindingContext.getProperty("ID");
