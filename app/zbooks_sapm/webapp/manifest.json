@@ -1,29 +1,13 @@
 {
-  "_version": "1.86.0",
+  "_version": "1.59.0",
   "sap.app": {
-  "id": "zbooks_sapm",
+    "id": "zbooks_sapm",
     "type": "application",
     "i18n": "i18n/i18n.properties",
+    "title": "App ZBooks SAPM",
+    "description": "An SAP Fiori application.",
     "applicationVersion": {
       "version": "0.0.1"
-    },
-    "title": "{{appTitle}}",
-    "description": "{{appDescription}}",
-    "resources": "resources.json",
-    "sourceTemplate": {
-      "id": "@sap/generator-fiori:basic",
-      "version": "1.29.0",
-      "toolsId": "8f4e3714-2f9b-49d4-a476-21e32aec3fd1"
-    },
-    "dataSources": {
-      "mainService": {
-        "uri": "/odata/v4/catalog/",
-        "type": "OData",
-        "settings": {
-          "annotations": [],
-          "odataVersion": "4.0"
-        }
-      }
     }
   },
   "sap.ui": {
@@ -61,7 +45,6 @@
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
           "bundleName": "zbooks_sapm.i18n.i18n"
-
         }
       },
       "": {

@@ -21,7 +21,7 @@
                 <f:heading>
                     <Title
                         id="_IDGenTitle"
-                        text="Book Inventory Management"
+                        text="Book Inventory Management 2"
                     />
                 </f:heading>
             </f:DynamicPageTitle>
