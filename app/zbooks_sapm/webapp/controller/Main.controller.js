@@ -8,9 +8,7 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("zbooks_sapm.controller.Main", {
-        onInit: function () {
-
-        },
+        onInit: function () {},
 
         // --- FORMATTERS ---
         formatStockText: function (iStock) {
@@ -66,7 +64,6 @@ sap.ui.define([
                 return aResult;
             }, []);
 
-            // ĐỔI: sap.m.Table dùng binding "items" thay vì "rows"
             var oBinding = oTable.getBinding("items");
             if (oBinding) {
                 var oModel = this.getView().getModel();
@@ -113,7 +110,6 @@ sap.ui.define([
             }
 
             var oTable = this.byId("booksTable");
-            // ĐỔI: Lấy binding từ "items"
             var oBinding = oTable ? oTable.getBinding("items") : null;
 
             if (oBinding && oBinding.create) {
@@ -158,7 +154,6 @@ sap.ui.define([
         // --- EDIT ---
         onEdit: function () {
             var oTable = this.byId("booksTable");
-            // ĐỔI: sap.m.Table dùng getSelectedItem() hoặc getSelectedContexts()
             var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
 
             if (!oSelectedItem) {
@@ -176,7 +171,6 @@ sap.ui.define([
         // --- DELETE ---
         onDelete: function () {
             var oTable = this.byId("booksTable");
-            // ĐỔI: Tương tự Edit, lấy Item được chọn từ sap.m.Table
             var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
 
             if (!oSelectedItem) {
@@ -230,7 +224,19 @@ sap.ui.define([
         onValueHelpConfirm: function (oEvent) {
             var oSelectedItem = oEvent.getParameter("selectedItem");
             if (oSelectedItem && this._oInputSource) {
-                this._oInputSource.setValue(oSelectedItem.getTitle());
+                var sSelectedAuthor = oSelectedItem.getTitle();
+                
+                this._oInputSource.setValue(sSelectedAuthor);
+                
+                var oBindingContext = this._oInputSource.getBindingContext();
+                if (oBindingContext) {
+                    oBindingContext.setProperty("author", sSelectedAuthor);
+                } else {
+                    var oBinding = this._oInputSource.getBinding("value");
+                    if (oBinding) {
+                        oBinding.setValue(sSelectedAuthor);
+                    }
+                }
             }
         },
 
@@ -242,7 +248,6 @@ sap.ui.define([
 
         // --- NAVIGATION ---
         onPressItem: function (oEvent) {
-            // ĐỔI: sap.m.Table lấy binding direct từ Item được bấm
             var oItem = oEvent.getSource();
             var oBindingContext = oItem ? oItem.getBindingContext() : null;
 
