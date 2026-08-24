@@ -7,17 +7,20 @@
     xmlns:fb="sap.ui.comp.filterbar"
     height="100%"
 >
-    <f:DynamicPage 
-        id="dynamicPageId" 
-        preserveHeaderStateOnScroll="true" 
-        headerExpanded="true" 
+    <f:DynamicPage
+        id="dynamicPageId"
+        preserveHeaderStateOnScroll="true"
+        headerExpanded="true"
         showFooter="true"
         fitContent="true"
     >
         <f:title>
             <f:DynamicPageTitle id="_IDGenDynamicPageTitle1">
                 <f:heading>
-                    <Title id="_IDGenTitle" text="Book Inventory Management 2" />
+                    <Title
+                        id="_IDGenTitle"
+                        text="Book Inventory Management 2"
+                    />
                 </f:heading>
             </f:DynamicPageTitle>
         </f:title>
@@ -25,23 +28,42 @@
         <f:header>
             <f:DynamicPageHeader id="dynamicPageHeader">
                 <f:content>
-                    <fb:FilterBar id="filterbar" useToolbar="false" search=".onSearch">
+                    <fb:FilterBar
+                        id="filterbar"
+                        useToolbar="false"
+                        search=".onSearch"
+                    >
                         <fb:filterGroupItems>
-                            <fb:FilterGroupItem name="title" label="Book Title" groupName="Group1" visibleInFilterBar="true">
+                            <fb:FilterGroupItem
+                                name="title"
+                                label="Book Title"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
                                 <fb:control>
-                                    <MultiComboBox name="title" items="{/Books}">
-                                        <core:Item key="{ID}" text="{title}" />
+                                    <MultiComboBox
+                                        name="title"
+                                        items="{/Books}"
+                                    >
+                                        <core:Item
+                                            key="{ID}"
+                                            text="{title}"
+                                        />
                                     </MultiComboBox>
                                 </fb:control>
                             </fb:FilterGroupItem>
 
                             <fb:FilterGroupItem name="author" label="Author" groupName="Group1" visibleInFilterBar="true">
-                                <fb:control>
-                                    <MultiComboBox name="author" items="{/Books}">
-                                        <core:Item key="{ID}" text="{author}" />
-                                    </MultiComboBox>
-                                </fb:control>
-                            </fb:FilterGroupItem>
+    <fb:control>
+        <MultiInput
+            id="authorFilter"
+            name="author"
+            placeholder="Select Author..."
+            showValueHelp="true"
+            valueHelpOnly="true"
+            valueHelpRequest=".onAuthorVHRequested" />
+    </fb:control>
+</fb:FilterGroupItem>
                         </fb:filterGroupItems>
                     </fb:FilterBar>
                 </f:content>
@@ -55,40 +77,77 @@
                 growing="true"
                 growingThreshold="20"
                 items="{
-                    path: '/Books',
-                    sorter: { path: 'ID', descending: false }
-                }"
+        path: '/Books',
+        sorter: { path: 'ID', descending: false }
+    }"
             >
                 <headerToolbar>
                     <OverflowToolbar id="_IDGenOverflowToolbar1">
-                        <Title id="_IDGenTitle2" text="Book List" level="H2" />
+                        <Title
+                            id="_IDGenTitle2"
+                            text="Book List"
+                            level="H2"
+                        />
                         <ToolbarSpacer id="_IDGenToolbarSpacer" />
-                        <Button id="btnAdd" text="Add" type="Emphasized" icon="sap-icon://add" press="onAdd" />
-                        <Button id="btnEdit" text="Edit" type="Attention" icon="sap-icon://edit" press="onEdit" />
-                        <Button id="btnDelete" text="Delete" type="Reject" icon="sap-icon://delete" press="onDelete" />
+                        <Button
+                            id="btnAdd"
+                            text="Add"
+                            type="Emphasized"
+                            icon="sap-icon://add"
+                            press="onAdd"
+                        />
+                        <Button
+                            id="btnEdit"
+                            text="Edit"
+                            type="Attention"
+                            icon="sap-icon://edit"
+                            press="onEdit"
+                        />
+                        <Button
+                            id="btnDelete"
+                            text="Delete"
+                            type="Reject"
+                            icon="sap-icon://delete"
+                            press="onDelete"
+                        />
                     </OverflowToolbar>
                 </headerToolbar>
 
                 <columns>
-                    <Column id="colID" width="5rem">
+                    <!-- Chia tỉ lệ phần trăm để 4 cột cân đối tuyệt đối -->
+                    <Column
+                        id="colID"
+                        width="10%"
+                    >
                         <header>
                             <Text text="ID" />
                         </header>
                     </Column>
 
-                    <Column id="colTitle">
+                    <Column
+                        id="colTitle"
+                        width="35%"
+                    >
                         <header>
                             <Text text="Book Title" />
                         </header>
                     </Column>
 
-                    <Column id="colAuthor" width="14rem" minScreenWidth="Tablet" demandPopin="true">
+                    <Column
+                        id="colAuthor"
+                        width="30%"
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                    >
                         <header>
                             <Text text="Author" />
                         </header>
                     </Column>
 
-                    <Column id="colStock" width="14rem" hAlign="Begin">
+                    <Column
+                        id="colStock"
+                        width="25%"
+                    >
                         <header>
                             <Text text="Stock Quantity" />
                         </header>
@@ -96,15 +155,22 @@
                 </columns>
 
                 <items>
-                    <ColumnListItem id="_IDGenColumnListItem" vAlign="Middle" type="Navigation" press=".onPressItem">
+                    <ColumnListItem
+                        id="_IDGenColumnListItem"
+                        vAlign="Middle"
+                        type="Navigation"
+                        press=".onPressItem"
+                    >
                         <cells>
-                            <ObjectIdentifier title="{ID}" />
+                            <Text text="{ID}" />
 
-                            <Text text="{title}" wrapping="false" />
+                            <ObjectIdentifier title="{title}" />
 
+                            <!-- Thẻ Input giống Ảnh 2: Thêm editable="false" để giữ giao diện phẳng đẹp -->
                             <Input
                                 value="{author}"
                                 showValueHelp="true"
+                                valueHelpOnly="true"
                                 valueHelpRequest=".onValueHelpRequest"
                             />
 

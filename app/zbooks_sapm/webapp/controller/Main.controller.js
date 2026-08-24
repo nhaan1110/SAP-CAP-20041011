@@ -3,8 +3,10 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], function (Controller, Filter, FilterOperator, MessageToast, MessageBox) {
+    "sap/m/MessageBox",
+    "sap/ui/comp/library",       // Bổ sung để hỗ trợ ValueHelpDialog
+    "sap/ui/model/type/String"  // Bổ sung để cấu hình kiểu dữ liệu lọc
+], function (Controller, Filter, FilterOperator, MessageToast, MessageBox, compLibrary, TypeString) {
     "use strict";
 
     return Controller.extend("zbooks_sapm.controller.Main", {
@@ -33,45 +35,6 @@ sap.ui.define([
             if (iValue <= 2) { return "sap-icon://error"; }
             else if (iValue <= 5) { return "sap-icon://alert"; }
             else { return "sap-icon://sys-enter-2"; }
-        },
-
-        // --- SEARCH ---
-        onSearch: function () {
-            var oFilterBar = this.getView().byId("filterbar");
-            var oTable = this.getView().byId("booksTable");
-
-            if (!oFilterBar || !oTable) { return; }
-
-            var aTableFilters = oFilterBar.getFilterGroupItems().reduce(function (aResult, oFilterGroupItem) {
-                var oControl = oFilterGroupItem.getControl();
-                if (oControl && oControl.getSelectedItems) {
-                    var aSelectedItems = oControl.getSelectedItems();
-                    var aFilters = aSelectedItems.map(function (oItem) {
-                        return new Filter({
-                            path: oFilterGroupItem.getName(),
-                            operator: FilterOperator.Contains,
-                            value1: oItem.getText()
-                        });
-                    });
-
-                    if (aSelectedItems.length > 0) {
-                        aResult.push(new Filter({
-                            filters: aFilters,
-                            and: false
-                        }));
-                    }
-                }
-                return aResult;
-            }, []);
-
-            var oBinding = oTable.getBinding("items");
-            if (oBinding) {
-                var oModel = this.getView().getModel();
-                if (oModel && oModel.hasPendingChanges && oModel.hasPendingChanges()) {
-                    oModel.submitBatch("$auto");
-                }
-                oBinding.filter(aTableFilters);
-            }
         },
 
         // --- ADD ---
@@ -195,68 +158,133 @@ sap.ui.define([
             });
         },
 
-        // --- VALUE HELP ---
-        onValueHelpRequest: function (oEvent) {
-            this._oInputSource = oEvent.getSource();
+        // --- VALUE HELP DIALOG (POPUUP DEFINE CONDITIONS) ---
+     onAuthorVHRequested: function () {
+    var oMultiInput = this.byId("authorFilter");
+    var oView = this.getView();
 
-            if (!this._oValueHelpDialog) {
-                this.loadFragment({
-                    name: "zbooks_sapm.view.AuthorValueHelp"
-                }).then(function (oDialog) {
-                    this._oValueHelpDialog = oDialog;
-                    this.getView().addDependent(this._oValueHelpDialog);
-                    this._oValueHelpDialog.open();
-                }.bind(this));
-            } else {
-                this._oValueHelpDialog.open();
+    if (!this._pAuthorVHDialog) {
+        this._pAuthorVHDialog = this.loadFragment({
+            name: "zbooks_sapm.view.AuthorValueHelp"
+        }).then(function (oDialog) {
+            oView.addDependent(oDialog);
+
+            // 1. Cấu hình cột hiển thị danh sách Tác giả (Tab Search List)
+            var oTable = oDialog.getTable();
+            oTable.setModel(oView.getModel());
+
+            if (oTable.bindRows) { // Dành cho sap.ui.table.Table
+                oTable.addColumn(new sap.ui.table.Column({
+                    label: new sap.m.Label({ text: "Author" }),
+                    template: new sap.m.Text({ text: "{author}" })
+                }));
+                oTable.bindRows("/Books");
+            } else if (oTable.bindItems) { // Dành cho sap.m.Table
+                oTable.bindAggregation("items", "/Books", new sap.m.ColumnListItem({
+                    cells: [new sap.m.Label({ text: "{author}" })]
+                }));
             }
+
+            // 2. Cấu hình cho Tab Define Conditions
+            oDialog.setRangeKeyFields([{
+                label: "Author",
+                key: "author",
+                type: "string",
+                typeInstance: new TypeString({}, { maxLength: 100 })
+            }]);
+
+            // Chỉ cho phép toán tử lọc văn bản
+            if (oDialog.setIncludeRangeOperations) {
+                oDialog.setIncludeRangeOperations([
+                    FilterOperator.Contains,
+                    FilterOperator.EQ,
+                    FilterOperator.StartsWith
+                ], "string");
+            }
+
+            return oDialog;
+        }.bind(this));
+    }
+
+    this._pAuthorVHDialog.then(function (oDialog) {
+        oDialog.setTokens(oMultiInput.getTokens());
+        oDialog.open();
+    });
+},
+
+        onAuthorValueHelpOkPress: function (oEvent) {
+    var aTokens = oEvent.getParameter("tokens");
+    var oMultiInput = this.byId("authorFilter");
+
+    oMultiInput.setTokens(aTokens);
+    oEvent.getSource().close();
+},
+
+        onAuthorCancelPress: function (oEvent) {
+            oEvent.getSource().close();
         },
 
-        onValueHelpSearch: function (oEvent) {
-            var sValue = oEvent.getParameter("value");
-            var oFilter = new Filter("author", FilterOperator.Contains, sValue);
-            var oBinding = oEvent.getSource().getBinding("items");
-            if (oBinding) {
-                oBinding.filter([oFilter]);
-            }
-        },
+        // --- SEARCH FILTERBAR ---
+        onSearch: function () {
+            var oFilterBar = this.getView().byId("filterbar");
+            var oTable = this.getView().byId("booksTable");
 
-        onValueHelpConfirm: function (oEvent) {
-            var oSelectedItem = oEvent.getParameter("selectedItem");
-            if (oSelectedItem && this._oInputSource) {
-                var sSelectedAuthor = oSelectedItem.getTitle();
-                
-                this._oInputSource.setValue(sSelectedAuthor);
-                
-                var oBindingContext = this._oInputSource.getBindingContext();
-                if (oBindingContext) {
-                    oBindingContext.setProperty("author", sSelectedAuthor);
-                } else {
-                    var oBinding = this._oInputSource.getBinding("value");
-                    if (oBinding) {
-                        oBinding.setValue(sSelectedAuthor);
+            if (!oFilterBar || !oTable) { return; }
+
+            var aTableFilters = [];
+
+            oFilterBar.getFilterGroupItems().forEach(function (oFilterGroupItem) {
+                var oControl = oFilterGroupItem.getControl();
+                var sPath = oFilterGroupItem.getName();
+
+                if (!oControl) { return; }
+
+                // 1. MultiComboBox (Title)
+                if (typeof oControl.getSelectedItems === "function") {
+                    var aSelectedItems = oControl.getSelectedItems();
+                    if (aSelectedItems.length > 0) {
+                        var aTitleFilters = aSelectedItems.map(function (oItem) {
+                            return new Filter({
+                                path: sPath,
+                                operator: FilterOperator.Contains,
+                                value1: oItem.getText()
+                            });
+                        });
+                        aTableFilters.push(new Filter({ filters: aTitleFilters, and: false }));
+                    }
+                } 
+                // 2. MultiInput (Author Token từ ValueHelp)
+                else if (typeof oControl.getTokens === "function") {
+                    var aTokens = oControl.getTokens();
+                    if (aTokens.length > 0) {
+                        var aAuthorFilters = aTokens.map(function (oToken) {
+                            var oRangeData = oToken.data("range");
+                            if (oRangeData) {
+                                return new Filter({
+                                    path: sPath,
+                                    operator: oRangeData.operation || FilterOperator.Contains,
+                                    value1: oRangeData.value1,
+                                    value2: oRangeData.value2
+                                });
+                            }
+                            return new Filter({
+                                path: sPath,
+                                operator: FilterOperator.Contains,
+                                value1: oToken.getText().replace("=", "")
+                            });
+                        });
+                        aTableFilters.push(new Filter({ filters: aAuthorFilters, and: false }));
                     }
                 }
-            }
-        },
+            });
 
-        onValueHelpClose: function () {
-            if (this._oValueHelpDialog) {
-                this._oValueHelpDialog.close();
-            }
-        },
-
-        // --- NAVIGATION ---
-        onPressItem: function (oEvent) {
-            var oItem = oEvent.getSource();
-            var oBindingContext = oItem ? oItem.getBindingContext() : null;
-
-            if (oBindingContext) {
-                var sBookId = oBindingContext.getProperty("ID");
-                var oRouter = this.getOwnerComponent().getRouter();
-                oRouter.navTo("RouteDetail", {
-                    bookId: sBookId
-                });
+            var oBinding = oTable.getBinding("items");
+            if (oBinding) {
+                var oModel = this.getView().getModel();
+                if (oModel && oModel.hasPendingChanges && oModel.hasPendingChanges()) {
+                    oModel.submitBatch("$auto");
+                }
+                oBinding.filter(aTableFilters);
             }
         }
     });
