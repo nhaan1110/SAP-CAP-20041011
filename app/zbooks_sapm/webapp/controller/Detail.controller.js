@@ -16,21 +16,17 @@ sap.ui.define([
         /**
          * Initialize Controller
          */
-        onInit: function () {
-            var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.getRoute("RouteDetail").attachPatternMatched(this._onObjectMatched, this);
-        },
+       onInit: function () {
+    var oRouter = this.getOwnerComponent().getRouter();
+    oRouter.getRoute("RouteDetail").attachPatternMatched(this._onObjectMatched, this);
+},
 
-        /**
-         * Handle route matched for RouteDetail
-         */
-        _onObjectMatched: function (oEvent) {
-            var sBookId = oEvent.getParameter("arguments").bookId;
-
-            this.getView().bindElement({
-                path: "/Books(" + sBookId + ")"
-            });
-        },
+_onObjectMatched: function (oEvent) {
+    var sBookId = oEvent.getParameter("arguments").bookId;
+    this.getView().bindElement({
+        path: "/Books(" + sBookId + ")"
+    });
+},
 
         /**
          * Navigate back to previous page

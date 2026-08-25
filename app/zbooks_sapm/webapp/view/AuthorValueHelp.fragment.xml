@@ -1,7 +1,8 @@
 <core:FragmentDefinition
-    xmlns="sap.ui.comp.valuehelpdialog"
-    xmlns:core="sap.ui.core">
-    <ValueHelpDialog
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:comp="sap.ui.comp.valuehelpdialog">
+    <comp:ValueHelpDialog
         id="authorValueHelpDialog"
         title="Author"
         ok=".onAuthorValueHelpOkPress"
@@ -9,6 +10,6 @@
         key="author"
         descriptionKey="author"
         supportRanges="true"
-        supportRangesOnly="false"
-        maxConditions="1" />
+        supportMultiselect="true">
+    </comp:ValueHelpDialog>
 </core:FragmentDefinition>

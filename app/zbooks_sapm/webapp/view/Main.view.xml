@@ -53,17 +53,23 @@
                                 </fb:control>
                             </fb:FilterGroupItem>
 
-                            <fb:FilterGroupItem name="author" label="Author" groupName="Group1" visibleInFilterBar="true">
-    <fb:control>
-        <MultiInput
-            id="authorFilter"
-            name="author"
-            placeholder="Select Author..."
-            showValueHelp="true"
-            valueHelpOnly="true"
-            valueHelpRequest=".onAuthorVHRequested" />
-    </fb:control>
-</fb:FilterGroupItem>
+                            <fb:FilterGroupItem
+                                name="author"
+                                label="Author"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <MultiInput
+                                        id="authorFilter"
+                                        name="author"
+                                        placeholder="Select Author..."
+                                        showValueHelp="true"
+                                        valueHelpOnly="true"
+                                        valueHelpRequest=".onAuthorVHRequested"
+                                    />
+                                </fb:control>
+                            </fb:FilterGroupItem>
                         </fb:filterGroupItems>
                     </fb:FilterBar>
                 </f:content>
@@ -114,7 +120,7 @@
                 </headerToolbar>
 
                 <columns>
-                    <!-- Chia tỉ lệ phần trăm để 4 cột cân đối tuyệt đối -->
+                
                     <Column
                         id="colID"
                         width="10%"
@@ -166,12 +172,11 @@
 
                             <ObjectIdentifier title="{title}" />
 
-                            <!-- Thẻ Input giống Ảnh 2: Thêm editable="false" để giữ giao diện phẳng đẹp -->
                             <Input
                                 value="{author}"
                                 showValueHelp="true"
                                 valueHelpOnly="true"
-                                valueHelpRequest=".onValueHelpRequest"
+                                valueHelpRequest=".onTableValueHelpRequest"
                             />
 
                             <ObjectStatus

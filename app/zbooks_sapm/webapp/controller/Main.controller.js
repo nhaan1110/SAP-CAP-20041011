@@ -4,13 +4,23 @@ sap.ui.define([
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
     "sap/m/MessageBox",
-    "sap/ui/comp/library",       // Bổ sung để hỗ trợ ValueHelpDialog
-    "sap/ui/model/type/String"  // Bổ sung để cấu hình kiểu dữ liệu lọc
+    "sap/ui/comp/library",       
+    "sap/ui/model/type/String"  
 ], function (Controller, Filter, FilterOperator, MessageToast, MessageBox, compLibrary, TypeString) {
     "use strict";
 
     return Controller.extend("zbooks_sapm.controller.Main", {
-        onInit: function () {},
+        onInit: function () { },
+
+        onPressItem: function (oEvent) {
+            var oItem = oEvent.getSource();
+            var oContext = oItem.getBindingContext();
+            var sBookId = oContext.getProperty("ID");
+
+            this.getOwnerComponent().getRouter().navTo("RouteDetail", {
+                bookId: sBookId
+            });
+        },
 
         // --- FORMATTERS ---
         formatStockText: function (iStock) {
@@ -60,7 +70,7 @@ sap.ui.define([
             this._pAddDialog.then(function (oDialog) {
                 oDialog.open();
             });
-        },
+        }, 
 
         onSaveBook: function () {
             var oView = this.getView();
@@ -95,7 +105,7 @@ sap.ui.define([
                 });
 
                 if (oModel && oModel.submitBatch) {
-                    oModel.submitBatch("$auto").catch(function(oErr) {
+                    oModel.submitBatch("$auto").catch(function (oErr) {
                         console.error("Submit batch failed", oErr);
                     });
                 }
@@ -158,73 +168,132 @@ sap.ui.define([
             });
         },
 
-        // --- VALUE HELP DIALOG (POPUUP DEFINE CONDITIONS) ---
-     onAuthorVHRequested: function () {
-    var oMultiInput = this.byId("authorFilter");
-    var oView = this.getView();
+        onAuthorVHRequested: function () {
+            var oMultiInput = this.byId("authorFilter");
+            var oView = this.getView();
 
-    if (!this._pAuthorVHDialog) {
-        this._pAuthorVHDialog = this.loadFragment({
-            name: "zbooks_sapm.view.AuthorValueHelp"
-        }).then(function (oDialog) {
-            oView.addDependent(oDialog);
+            if (!this._pAuthorVHDialog) {
+                this._pAuthorVHDialog = this.loadFragment({
+                    name: "zbooks_sapm.view.AuthorValueHelp"
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
 
-            // 1. Cấu hình cột hiển thị danh sách Tác giả (Tab Search List)
-            var oTable = oDialog.getTable();
-            oTable.setModel(oView.getModel());
+                    oDialog.setKey("author");
+                    oDialog.setDescriptionKey("author");
 
-            if (oTable.bindRows) { // Dành cho sap.ui.table.Table
-                oTable.addColumn(new sap.ui.table.Column({
-                    label: new sap.m.Label({ text: "Author" }),
-                    template: new sap.m.Text({ text: "{author}" })
-                }));
-                oTable.bindRows("/Books");
-            } else if (oTable.bindItems) { // Dành cho sap.m.Table
-                oTable.bindAggregation("items", "/Books", new sap.m.ColumnListItem({
-                    cells: [new sap.m.Label({ text: "{author}" })]
-                }));
+                    // 1. Định nghĩa cột hiển thị (bắt buộc đối với ValueHelpDialog)
+                    var oColModel = new sap.ui.model.json.JSONModel({
+                        cols: [
+                            { label: "Author", template: "author" }
+                        ]
+                    });
+                    oDialog.setModel(oColModel, "columns");
+
+                    // 2. Tạo sap.m.Table
+                    var oTable = new sap.m.Table({
+                        mode: "MultiSelect",
+                        columns: [
+                            new sap.m.Column({
+                                header: new sap.m.Label({ text: "Author" })
+                            })
+                        ]
+                    });
+
+        
+                    oTable.bindItems({
+                        path: "/Books",
+                        template: new sap.m.ColumnListItem({
+                            cells: [
+                                new sap.m.Text({ text: "{author}" })
+                            ]
+                        })
+                    });
+
+                  
+                    oDialog.setTable(oTable);
+
+                   
+                    oDialog.setRangeKeyFields([{
+                        label: "Author",
+                        key: "author",
+                        type: "string",
+                        typeInstance: new TypeString({}, { maxLength: 100 })
+                    }]);
+
+                    if (oDialog.setIncludeRangeOperations) {
+                        oDialog.setIncludeRangeOperations([
+                            FilterOperator.Contains,
+                            FilterOperator.EQ,
+                            FilterOperator.StartsWith
+                        ], "string");
+                    }
+
+                    return oDialog;
+                }.bind(this));
             }
 
-            // 2. Cấu hình cho Tab Define Conditions
-            oDialog.setRangeKeyFields([{
-                label: "Author",
-                key: "author",
-                type: "string",
-                typeInstance: new TypeString({}, { maxLength: 100 })
-            }]);
-
-            // Chỉ cho phép toán tử lọc văn bản
-            if (oDialog.setIncludeRangeOperations) {
-                oDialog.setIncludeRangeOperations([
-                    FilterOperator.Contains,
-                    FilterOperator.EQ,
-                    FilterOperator.StartsWith
-                ], "string");
-            }
-
-            return oDialog;
-        }.bind(this));
-    }
-
-    this._pAuthorVHDialog.then(function (oDialog) {
-        oDialog.setTokens(oMultiInput.getTokens());
-        oDialog.open();
-    });
-},
+            this._pAuthorVHDialog.then(function (oDialog) {
+                oDialog.setTokens(oMultiInput.getTokens());
+                oDialog.open();
+            });
+        },
 
         onAuthorValueHelpOkPress: function (oEvent) {
-    var aTokens = oEvent.getParameter("tokens");
-    var oMultiInput = this.byId("authorFilter");
+            var aTokens = oEvent.getParameter("tokens");
+            var oMultiInput = this.byId("authorFilter");
 
-    oMultiInput.setTokens(aTokens);
-    oEvent.getSource().close();
-},
+            oMultiInput.setTokens(aTokens);
+            oEvent.getSource().close();
+        },
 
+        // 1. Mở SelectDialog cho từng dòng trên Table bằng Fragment
+        onTableValueHelpRequest: function (oEvent) {
+            var oInput = oEvent.getSource();
+            this._oCurrentTableInput = oInput; 
+
+            if (!this._pTableSelectDialog) {
+                this._pTableSelectDialog = this.loadFragment({
+                    name: "zbooks_sapm.view.TableAuthorValueHelp"
+                });
+            }
+
+            this._pTableSelectDialog.then(function (oDialog) {
+              
+                oDialog.open();
+            });
+        },
+
+        // 2. Xử lý Tìm kiếm trong SelectDialog của Table
+        onTableValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value");
+            var oFilter = new sap.ui.model.Filter("author", sap.ui.model.FilterOperator.Contains, sValue);
+            var oBinding = oEvent.getSource().getBinding("items");
+
+            if (sValue) {
+                oBinding.filter([oFilter]);
+            } else {
+                oBinding.filter([]);
+            }
+        },
+
+        // 3. Xử lý khi chọn 1 Tác giả từ danh sách
+        onTableValueHelpConfirm: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("selectedItem");
+            if (oSelectedItem && this._oCurrentTableInput) {
+                var sSelectedAuthor = oSelectedItem.getTitle();
+                
+                this._oCurrentTableInput.setValue(sSelectedAuthor);
+            }
+        },
+
+        // 4. Xử lý khi bấm Cancel
+        onTableValueHelpCancel: function () {
+            this._oCurrentTableInput = null;
+        },
         onAuthorCancelPress: function (oEvent) {
             oEvent.getSource().close();
         },
 
-        // --- SEARCH FILTERBAR ---
         onSearch: function () {
             var oFilterBar = this.getView().byId("filterbar");
             var oTable = this.getView().byId("booksTable");
@@ -245,20 +314,21 @@ sap.ui.define([
                     if (aSelectedItems.length > 0) {
                         var aTitleFilters = aSelectedItems.map(function (oItem) {
                             return new Filter({
-                                path: sPath,
-                                operator: FilterOperator.Contains,
-                                value1: oItem.getText()
+                                path: "ID",
+                                operator: FilterOperator.EQ,
+                                value1: oItem.getKey()
                             });
                         });
                         aTableFilters.push(new Filter({ filters: aTitleFilters, and: false }));
                     }
-                } 
-                // 2. MultiInput (Author Token từ ValueHelp)
+                }
+                // 2. MultiInput (Author Token)
                 else if (typeof oControl.getTokens === "function") {
                     var aTokens = oControl.getTokens();
                     if (aTokens.length > 0) {
                         var aAuthorFilters = aTokens.map(function (oToken) {
                             var oRangeData = oToken.data("range");
+
                             if (oRangeData) {
                                 return new Filter({
                                     path: sPath,
@@ -267,10 +337,14 @@ sap.ui.define([
                                     value2: oRangeData.value2
                                 });
                             }
+
+                            var sCleanValue = oToken.getKey() || oToken.getText();
+                            sCleanValue = sCleanValue.replace(/^[=]/, "").trim();
+
                             return new Filter({
                                 path: sPath,
-                                operator: FilterOperator.Contains,
-                                value1: oToken.getText().replace("=", "")
+                                operator: FilterOperator.EQ,
+                                value1: sCleanValue
                             });
                         });
                         aTableFilters.push(new Filter({ filters: aAuthorFilters, and: false }));
@@ -280,11 +354,11 @@ sap.ui.define([
 
             var oBinding = oTable.getBinding("items");
             if (oBinding) {
-                var oModel = this.getView().getModel();
-                if (oModel && oModel.hasPendingChanges && oModel.hasPendingChanges()) {
-                    oModel.submitBatch("$auto");
+                if (aTableFilters.length > 0) {
+                    oBinding.filter(new Filter({ filters: aTableFilters, and: true }));
+                } else {
+                    oBinding.filter([]);
                 }
-                oBinding.filter(aTableFilters);
             }
         }
     });
