@@ -33,6 +33,8 @@
                         useToolbar="false"
                         search=".onSearch"
                     >
+
+                    
                         <fb:filterGroupItems>
                             <fb:FilterGroupItem
                                 name="title"
