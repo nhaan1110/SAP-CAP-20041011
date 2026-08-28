@@ -3,12 +3,18 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], function (Controller, Filter, FilterOperator, MessageToast, MessageBox) {
-    "use strict";
+    "sap/m/MessageBox",
+    "sap/ui/model/json/JSONModel" 
+], function (Controller, Filter, FilterOperator, MessageToast, MessageBox, JSONModel) {
+    "use strict"
 
     return Controller.extend("zbooks.controller.Main", {
         onInit: function () {
+            // Khởi tạo JSONModel để quản lý trạng thái ẩn/hiện nút và chỉnh sửa
+            var oViewModel = new JSONModel({
+                isEditing: false // Mặc định ban đầu chưa ở chế độ edit
+            });
+            this.getView().setModel(oViewModel, "ui");
 
         },
 
@@ -35,6 +41,15 @@ sap.ui.define([
             if (iValue <= 2) { return "sap-icon://error"; }
             else if (iValue <= 5) { return "sap-icon://alert"; }
             else { return "sap-icon://sys-enter-2"; }
+        },
+
+        // --- BỔ SUNG THÊM 2 HÀM NÀY ĐỂ ĐIỀU KHIỂN ẨN/HIỆN KHI EDIT ---
+        formatNotEditing: function (bIsEditing) {
+            return !bIsEditing; // Trả về true khi chưa bấm Edit -> Hiện ObjectStatus (ảnh 2)
+        },
+
+        formatIsEditing: function (bIsEditing) {
+            return !!bIsEditing; // Trả về true khi bấm Edit -> Hiện ô Input để sửa
         },
 
         // --- SEARCH ---
@@ -153,19 +168,52 @@ sap.ui.define([
         },
 
         onEdit: function () {
+            // Chuyển sang trạng thái chỉnh sửa: ẩn Add, Delete, hiện Save, Cancel
+            var oModel = this.getView().getModel("ui");
+            oModel.setProperty("/isEditing", true);
+        },
+
+        onSave: function () {
+            var oView = this.getView();
+            var oODataModel = oView.getModel(); // OData V4 Model hiện tại
             var oTable = this.byId("booksTable");
-            var iSelectedIndex = oTable ? oTable.getSelectedIndex() : -1;
 
-            if (iSelectedIndex === -1) {
-                MessageToast.show("Please select a book from the table to edit!");
-                return;
+            // 1. Kiểm tra xem có thay đổi nào chưa lưu trên model hay không
+            var bHasChanges = oODataModel && oODataModel.hasPendingChanges && oODataModel.hasPendingChanges();
+
+            if (bHasChanges) {
+                // 2. Nếu có, tiến hành submit batch để lưu dữ liệu
+                oODataModel.submitBatch("$auto").then(function () {
+                    MessageToast.show("Changes saved successfully!");
+                }).catch(function (oError) {
+                    MessageBox.error("Failed to save changes: " + (oError.message || "Unknown error"));
+                });
+            } else {
+                // Trường hợp người dùng vừa gõ xong nhưng ô input chưa mất tiêu điểm (chưa commit binding)
+                // Ta có thể ép submit trực tiếp để cố gắng đẩy dữ liệu
+                oODataModel.submitBatch("$auto").then(function () {
+                    MessageToast.show("Saved successfully!");
+                }).catch(function () {
+                    MessageToast.show("No changes detected. Please ensure you modified a field and clicked outside of it.");
+                });
             }
 
-            var oContext = oTable.getContextByIndex(iSelectedIndex);
-            var oBook = oContext ? oContext.getObject() : null;
-            if (oBook) {
-                MessageToast.show("Selected book for editing: " + (oBook.title || oBook.ID));
+            // 3. Đưa giao diện về lại chế độ bình thường (hiện Add/Edit/Delete, ẩn Save/Cancel, khóa lại các Input)
+            oView.getModel("ui").setProperty("/isEditing", false);
+        },
+
+        onCancel: function () {
+            var oView = this.getView();
+            var oODataModel = oView.getModel();
+
+            // Reset lại các thay đổi chưa lưu trên OData Model
+            if (oODataModel && oODataModel.resetChanges) {
+                oODataModel.resetChanges();
             }
+
+            // Chuyển lại trạng thái bình thường
+            oView.getModel("ui").setProperty("/isEditing", false);
+            MessageToast.show("Edit cancelled.");
         },
 
         onDelete: function () {
@@ -250,6 +298,36 @@ sap.ui.define([
                 oRouter.navTo("RouteDetail", {
                     bookId: sBookId
                 });
+            }
+        },
+
+        onRefresh: function () {
+            var oTable = this.byId("booksTable");
+            var oFilterBar = this.byId("filterbar");
+            var oBinding = oTable ? oTable.getBinding("rows") : null;
+            
+            // 1. Xóa sạch các lựa chọn trong các ô lọc (MultiComboBox / Input trên FilterBar)
+            if (oFilterBar) {
+                var aFilterGroupItems = oFilterBar.getFilterGroupItems();
+                aFilterGroupItems.forEach(function (oFilterGroupItem) {
+                    var oControl = oFilterGroupItem.getControl();
+                    if (oControl) {
+                        if (oControl.clearSelection) {
+                            oControl.clearSelection(); // Dành cho MultiComboBox
+                        } else if (oControl.setValue) {
+                            oControl.setValue("");     // Dành cho Input thông thường
+                        }
+                    }
+                });
+            }
+
+            // 2. Xóa bộ lọc đang gắn trên bảng và tiến hành refresh dữ liệu gốc
+            if (oBinding) {
+                oBinding.filter([]); // Xóa filter để bảng hiển thị lại toàn bộ danh sách
+                oBinding.refresh();  // Tải lại dữ liệu mới nhất từ server
+                MessageToast.show("Table refreshed and filters cleared!");
+            } else {
+                MessageToast.show("Could not find table binding to refresh.");
             }
         }
     });

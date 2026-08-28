@@ -33,8 +33,6 @@
                         useToolbar="false"
                         search=".onSearch"
                     >
-
-                    
                         <fb:filterGroupItems>
                             <fb:FilterGroupItem
                                 name="title"
@@ -118,11 +116,18 @@
                             icon="sap-icon://delete"
                             press="onDelete"
                         />
+
+                        <Button
+                            id="btnRefresh"
+                            text="Refresh"
+                            type="Transparent"
+                            icon="sap-icon://refresh"
+                            press="onRefreshTable"
+                        />
                     </OverflowToolbar>
                 </headerToolbar>
 
                 <columns>
-                
                     <Column
                         id="colID"
                         width="10%"

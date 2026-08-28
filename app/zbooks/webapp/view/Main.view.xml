@@ -8,10 +8,10 @@
     xmlns:table="sap.ui.table"
     height="100%"
 >
-    <f:DynamicPage 
-        id="dynamicPageId" 
-        preserveHeaderStateOnScroll="true" 
-        headerExpanded="true" 
+    <f:DynamicPage
+        id="dynamicPageId"
+        preserveHeaderStateOnScroll="true"
+        headerExpanded="true"
         showFooter="true"
         fitContent="true"
     >
@@ -109,33 +109,69 @@
                             level="H2"
                         />
                         <ToolbarSpacer id="_IDGenToolbarSpacer" />
+
+                        <!-- Nút ADD: Hiện khi isEditing bằng false -->
                         <Button
                             id="btnAdd"
                             text="Add"
                             type="Emphasized"
                             icon="sap-icon://add"
                             press="onAdd"
+                            visible="{= ${ui>/isEditing} === false }"
                         />
+
+                        <!-- Nút EDIT: Hiện khi isEditing bằng false -->
                         <Button
                             id="btnEdit"
                             text="Edit"
                             type="Attention"
                             icon="sap-icon://edit"
                             press="onEdit"
+                            visible="{= ${ui>/isEditing} === false }"
                         />
+
+                        <!-- Nút DELETE: Hiện khi isEditing bằng false -->
                         <Button
                             id="btnDelete"
                             text="Delete"
                             type="Reject"
                             icon="sap-icon://delete"
                             press="onDelete"
+                            visible="{= ${ui>/isEditing} === false }"
+                        />
+
+                        <Button
+                            text="Refresh"
+                            icon="sap-icon://refresh"
+                            press="onRefresh"
+                        />
+
+                        <Button
+                            id="btnSave"
+                            text="Save"
+                            type="Accept"
+                            icon="sap-icon://save"
+                            press="onSave"
+                            visible="{= ${ui>/isEditing} === true }"
+                        />
+
+                        <Button
+                            id="btnCancel"
+                            text="Cancel"
+                            type="Default"
+                            icon="sap-icon://cancel"
+                            press="onCancel"
+                            visible="{= ${ui>/isEditing} === true }"
                         />
                     </OverflowToolbar>
                 </table:extension>
 
                 <table:columns>
                     <!--- Book ID -->
-                    <table:Column id="_IDGenColumn" width="10rem">
+                    <table:Column
+                        id="_IDGenColumn"
+                        width="10rem"
+                    >
                         <Label text="Book ID (ID)" />
                         <table:template>
                             <Text
@@ -162,7 +198,8 @@
                         <table:template>
                             <Input
                                 id="_IDGenInput"
-                                value="{author}"
+                                value="{path: 'author', mode: 'TwoWay'}"
+                                editable="{ui>/isEditing}"
                                 showValueHelp="true"
                                 valueHelpRequest="onValueHelpRequest"
                                 placeholder="Select Author"
@@ -174,12 +211,25 @@
                     <table:Column id="_IDGenColumn3">
                         <Label text="Stock Quantity" />
                         <table:template>
-                            <ObjectStatus
-                                id="_IDGenStockStatus"
-                                text="{path: 'stock', formatter: '.formatStockText'}"
-                                state="{path: 'stock', formatter: '.formatStockState'}"
-                                icon="{path: 'stock', formatter: '.formatStockIcon'}"
-                            />
+                            <VBox>
+                                <!-- 1. Hiển thị trạng thái (ObjectStatus) khi KHÔNG ở chế độ Edit -->
+                                <ObjectStatus
+                                    id="_IDGenStockStatus"
+                                    text="{path: 'stock', formatter: '.formatStockText'}"
+                                    state="{path: 'stock', formatter: '.formatStockState'}"
+                                    icon="{path: 'stock', formatter: '.formatStockIcon'}"
+                                    visible="{path: 'ui>/isEditing', formatter: '.formatNotEditing'}"
+                                />
+
+                                <!-- 2. Hiển thị ô nhập liệu (Input) khi ĐANG ở chế độ Edit -->
+                                <Input
+                                    value="{path: 'stock', mode: 'TwoWay'}"
+                                    type="Number"
+                                    editable="{ui>/isEditing}"
+                                    visible="{path: 'ui>/isEditing', formatter: '.formatIsEditing'}"
+                                    placeholder="Enter stock"
+                                />
+                            </VBox>
                         </table:template>
                     </table:Column>
                 </table:columns>

@@ -4,16 +4,16 @@ sap.ui.define([
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
     "sap/m/MessageBox",
-    "sap/ui/comp/library",       
+    "sap/ui/comp/library",
     "sap/ui/model/type/String",
-    "sap/ui/model/json/JSONModel" // 1. Đã bổ sung import JSONModel ở đây
+    "sap/ui/model/json/JSONModel"
 ], function (Controller, Filter, FilterOperator, MessageToast, MessageBox, compLibrary, TypeString, JSONModel) { // 2. Đã thêm tham số JSONModel
     "use strict";
 
     return Controller.extend("zbooks_sapm.controller.Main", {
         onInit: function () { },
 
-        
+
 
         onPressItem: function (oEvent) {
             var oItem = oEvent.getSource();
@@ -74,7 +74,7 @@ sap.ui.define([
             this._pAddDialog.then(function (oDialog) {
                 oDialog.open();
             });
-        }, 
+        },
 
         onSaveBook: function () {
             var oView = this.getView();
@@ -129,83 +129,80 @@ sap.ui.define([
         },
 
         // --- EDIT ---
-      onEdit: function () {
-    var oTable = this.byId("booksTable");
-    var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
+        onEdit: function () {
+            var oTable = this.byId("booksTable");
+            var oSelectedItem = oTable ? oTable.getSelectedItem() : null;
 
-    if (!oSelectedItem) {
-        sap.m.MessageToast.show("Please select a book to edit!");
-        return;
-    }
+            if (!oSelectedItem) {
+                sap.m.MessageToast.show("Please select a book to edit!");
+                return;
+            }
 
-    // 1. Lấy dữ liệu dòng được chọn
-    var oContext = oSelectedItem.getBindingContext();
-    var oSelectedData = oContext.getObject();
+            // 1. Lấy dữ liệu dòng được chọn
+            var oContext = oSelectedItem.getBindingContext();
+            var oSelectedData = oContext.getObject();
 
-    // Lưu lại context để dùng khi Save
-    this._oEditContext = oContext; 
+            // Lưu lại context để dùng khi Save
+            this._oEditContext = oContext;
 
-    // 2. Mở Pop-up
-    var oView = this.getView();
-    
-    // Copy dữ liệu sang model tạm 'editBook' để sửa trên Pop-up
-    var oEditModel = new sap.ui.model.json.JSONModel(Object.assign({}, oSelectedData));
-    oView.setModel(oEditModel, "editBook");
+            // 2. Mở Pop-up
+            var oView = this.getView();
 
-    if (!this._pEditDialog) {
-        this._pEditDialog = this.loadFragment({
-            name: "zbooks_sapm.view.EditBookDialog"
-        }).then(function (oDialog) {
-            oView.addDependent(oDialog);
-            return oDialog;
-        });
-    }
+            // Copy dữ liệu sang model tạm 'editBook' để sửa trên Pop-up
+            var oEditModel = new sap.ui.model.json.JSONModel(Object.assign({}, oSelectedData));
+            oView.setModel(oEditModel, "editBook");
 
-    this._pEditDialog.then(function (oDialog) {
-        oDialog.open();
-    });
-},
+            if (!this._pEditDialog) {
+                this._pEditDialog = this.loadFragment({
+                    name: "zbooks_sapm.view.EditBookDialog"
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    return oDialog;
+                });
+            }
 
-        // Nút Save trong Edit Dialog
-        // Nút Save trong Pop-up
-// Nút Save trong Pop-up
-onSaveEditDialog: function () {
-    var oEditData = this.getView().getModel("editBook").getData();
-    var oContext = this._oEditContext;
+            this._pEditDialog.then(function (oDialog) {
+                oDialog.open();
+            });
+        },
 
-    if (!oEditData.title || !oEditData.title.trim()) {
-        sap.m.MessageToast.show("Please enter a book title!");
-        return;
-    }
+        onSaveEditDialog: function () {
+            var oEditData = this.getView().getModel("editBook").getData();
+            var oContext = this._oEditContext;
 
-    if (oContext) {
-        // Cập nhật giá trị từ Pop-up vào OData Model gốc
-        oContext.setProperty("title", oEditData.title.trim());
-        oContext.setProperty("author", oEditData.author ? oEditData.author.trim() : "");
-        oContext.setProperty("stock", parseInt(oEditData.stock, 10) || 0);
+            if (!oEditData.title || !oEditData.title.trim()) {
+                sap.m.MessageToast.show("Please enter a book title!");
+                return;
+            }
 
-        // Đẩy thay đổi xuống Backend/DB
-        var oModel = this.getView().getModel();
-        if (oModel && oModel.submitBatch) {
-            oModel.submitBatch("$auto");
-        } else if (oModel && oModel.submitChanges) {
-            oModel.submitChanges();
-        }
+            if (oContext) {
+                // Cập nhật giá trị từ Pop-up vào OData Model gốc
+                oContext.setProperty("title", oEditData.title.trim());
+                oContext.setProperty("author", oEditData.author ? oEditData.author.trim() : "");
+                oContext.setProperty("stock", parseInt(oEditData.stock, 10) || 0);
 
-        sap.m.MessageToast.show("Updated successfully!");
-    }
+                // Đẩy thay đổi xuống Backend/DB
+                var oModel = this.getView().getModel();
+                if (oModel && oModel.submitBatch) {
+                    oModel.submitBatch("$auto");
+                } else if (oModel && oModel.submitChanges) {
+                    oModel.submitChanges();
+                }
 
-    this.onCloseEditDialog();
-},
+                sap.m.MessageToast.show("Updated successfully!");
+            }
 
-// Nút Cancel trong Pop-up
-onCloseEditDialog: function () {
-    if (this._pEditDialog) {
-        this._pEditDialog.then(function (oDialog) {
-            oDialog.close();
-        });
-    }
-},
+            this.onCloseEditDialog();
+        },
+
+        // Nút Cancel trong Pop-up
+        onCloseEditDialog: function () {
+            if (this._pEditDialog) {
+                this._pEditDialog.then(function (oDialog) {
+                    oDialog.close();
+                });
+            }
+        },
 
         // --- DELETE ---
         onDelete: function () {
@@ -232,6 +229,35 @@ onCloseEditDialog: function () {
                     }
                 }
             });
+        },
+
+        onRefreshTable: function () {
+
+            // 1. Xóa sạch dữ liệu trên ô lọc Book Title (MultiComboBox)
+            var oTitleFilter = this.byId("filterbar").getFilterGroupItems()[0].getControl();
+            if (oTitleFilter && oTitleFilter.removeAllSelectedKeys) {
+                oTitleFilter.removeAllSelectedKeys();
+            }
+
+            // 2. Xóa sạch dữ liệu trên ô lọc Author (MultiInput)
+            var oAuthorFilter = this.byId("authorFilter");
+            if (oAuthorFilter && oAuthorFilter.removeAllTokens) {
+                oAuthorFilter.removeAllTokens();
+                oAuthorFilter.setValue("");
+            }
+
+            // 3. Reset bộ lọc của bảng để hiển thị lại toàn bộ danh sách
+            var oTable = this.byId("booksTable");
+            var oBinding = oTable ? oTable.getBinding("items") : null;
+            if (oBinding) {
+                oBinding.filter([]);
+            }
+
+            // 4. Làm mới dữ liệu từ OData Model
+            var oModel = this.getView().getModel();
+            if (oModel && oModel.refresh) {
+                oModel.refresh();
+            }
         },
 
         onAuthorVHRequested: function () {
@@ -310,7 +336,7 @@ onCloseEditDialog: function () {
 
         onTableValueHelpRequest: function (oEvent) {
             var oInput = oEvent.getSource();
-            this._oCurrentTableInput = oInput; 
+            this._oCurrentTableInput = oInput;
 
             if (!this._pTableSelectDialog) {
                 this._pTableSelectDialog = this.loadFragment({
@@ -340,7 +366,7 @@ onCloseEditDialog: function () {
             var oSelectedItem = oEvent.getParameter("selectedItem");
             if (oSelectedItem && this._oCurrentTableInput) {
                 var sSelectedAuthor = oSelectedItem.getTitle();
-                
+
                 this._oCurrentTableInput.setValue(sSelectedAuthor);
             }
         },
@@ -351,30 +377,6 @@ onCloseEditDialog: function () {
 
         onAuthorCancelPress: function (oEvent) {
             oEvent.getSource().close();
-        },
-
-// --- CLEAR FILTER ---
-        onClear: function () {
-            // 1. Lấy control MultiComboBox (Book Title) và MultiInput (Author)
-            var oTitleFilter = this.byId("filterbar").getFilterGroupItems()[0].getControl();
-            var oAuthorFilter = this.byId("authorFilter");
-
-            // 2. Xóa sạch dữ liệu đã chọn/nhập trên giao diện
-            if (oTitleFilter && oTitleFilter.removeAllSelectedKeys) {
-                oTitleFilter.removeAllSelectedKeys();
-            }
-            
-            if (oAuthorFilter && oAuthorFilter.removeAllTokens) {
-                oAuthorFilter.removeAllTokens();
-                oAuthorFilter.setValue("");
-            }
-
-            // 3. Reset lại bảng dữ liệu về trạng thái ban đầu (hiển thị tất cả)
-            var oTable = this.byId("booksTable");
-            var oBinding = oTable ? oTable.getBinding("items") : null;
-            if (oBinding) {
-                oBinding.filter([]);
-            }
         },
 
         onSearch: function () {
