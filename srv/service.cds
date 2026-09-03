@@ -5,3 +5,4 @@ service CatalogService {
   entity Orders   as projection on bookshop.Orders;
   entity Chapters as projection on bookshop.Chapters;
 }
+

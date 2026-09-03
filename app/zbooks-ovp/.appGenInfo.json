@@ -1,0 +1,28 @@
+{
+  "generationParameters": {
+    "generationDate": "Thu Sep 03 2026 15:08:56 GMT+0700 (Indochina Time)",
+    "generatorPlatform": "Visual Studio Code",
+    "serviceType": "Local CAP",
+    "metadataFilename": "",
+    "serviceUrl": "http://localhost:4004/odata/v4/catalog/",
+    "appName": "zbooks-ovp",
+    "appTitle": "Book Overview Dashboard",
+    "appDescription": "An SAP Fiori application.",
+    "appNamespace": "",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.151.0",
+    "enableEslint": true,
+    "enableTypeScript": false,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.29.0",
+    "template": "Overview Page V4",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [
+      {
+        "type": "Filter Entity Type",
+        "value": "Books"
+      }
+    ],
+    "launchText": "To launch the generated app, start your CAP project:  and navigate to the following location in your browser:\n\nhttp://localhost:4004/zbooksovp/index.html"
+  }
+}
